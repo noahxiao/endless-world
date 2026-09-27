@@ -1,0 +1,644 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Sierra Nevada, Repainted</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400;1,6..72,500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  --ground:#14100d; --panel:#1c1713; --line:#2e261f; --ink:#ece2cf; --muted:#9a8b77; --varnish:#d6a85c; --varnish-dim:#8a6a38;
+  --serif:"Newsreader",Georgia,"Times New Roman",serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+html,body{background:var(--ground);color:var(--ink)}
+body{font-family:var(--serif);padding-inline:16px;padding-block:20px 40px}
+.wrap{max-width:1280px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 20px}
+h1{font-weight:400;font-style:italic;font-size:clamp(22px,3vw,32px);margin:0;letter-spacing:.005em;text-wrap:balance}
+.byline{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.stage{position:relative;width:100%;aspect-ratio:16/9;max-width:100%;background:#000;border:1px solid var(--line);overflow:hidden}
+.stage canvas{display:block;width:100%;height:100%;object-fit:cover}
+.phase-tag{position:absolute;left:14px;top:12px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,248,232,.85);background:rgba(20,16,13,.45);padding:4px 8px;border-radius:2px;pointer-events:none;transition:opacity .6s}
+.controls{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px}
+.btn{font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--ink);background:var(--panel);border:1px solid var(--line);padding:8px 12px;border-radius:3px;cursor:pointer}
+.btn:hover{border-color:var(--varnish-dim)}
+.btn:focus-visible,.scrub:focus-visible{outline:2px solid var(--varnish);outline-offset:2px}
+.play{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;padding:0;background:var(--varnish);border-color:var(--varnish);color:#1a130b}
+.play svg{width:16px;height:16px;fill:currentColor}
+.track{display:flex;flex-direction:column;gap:6px;min-width:0}
+.scrub{-webkit-appearance:none;appearance:none;width:100%;height:18px;background:transparent;margin:0;cursor:pointer}
+.scrub::-webkit-slider-runnable-track{height:3px;background:linear-gradient(to right,var(--varnish) var(--pct,0%),var(--line) var(--pct,0%))}
+.scrub::-moz-range-track{height:3px;background:var(--line)}
+.scrub::-moz-range-progress{height:3px;background:var(--varnish)}
+.scrub::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--ink);margin-top:-5px;border:0}
+.scrub::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:var(--ink);border:0}
+.marks{position:relative;height:16px;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.marks button{position:absolute;top:0;background:none;border:0;border-left:1px solid var(--line);padding:0 0 0 5px;color:inherit;font:inherit;letter-spacing:inherit;cursor:pointer;white-space:nowrap}
+.marks button:hover,.marks button.on{color:var(--varnish)}
+.right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.time{font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums;color:var(--muted);min-width:9.5em;text-align:right}
+.seg{display:flex;border:1px solid var(--line);border-radius:3px;overflow:hidden}
+.seg button{font-family:var(--mono);font-size:11.5px;background:var(--panel);color:var(--muted);border:0;padding:8px 9px;cursor:pointer}
+.seg button[aria-pressed="true"]{color:#1a130b;background:var(--ink)}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px 36px;margin-top:10px;padding-top:18px;border-top:1px solid var(--line)}
+.notes h2{font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--varnish);margin:0 0 10px}
+.notes p,.notes li{font-size:16px;line-height:1.5;color:#d9ceba;max-width:62ch;margin:0}
+.notes ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px}
+.notes li b{font-weight:500;font-style:italic;color:var(--ink)}
+.swatches{display:flex;flex-wrap:wrap;gap:4px;margin-top:12px}
+.swatches span{width:26px;height:26px;border:1px solid rgba(255,255,255,.06)}
+.notes .credit{font-family:var(--mono);font-size:11.5px;color:var(--muted);line-height:1.6}
+.notes .credit a{color:var(--muted)}
+/* wallpaper mode */
+.stage.wall{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;aspect-ratio:auto;z-index:50;border:0;cursor:none}
+.stage.wall .phase-tag{opacity:0}
+.wall-hint{position:absolute;right:14px;bottom:12px;font-family:var(--mono);font-size:11px;color:rgba(255,248,232,.7);background:rgba(20,16,13,.45);padding:4px 8px;opacity:0;transition:opacity .8s;pointer-events:none}
+.stage.wall .wall-hint.show{opacity:1}
+@media (max-width:640px){.controls{grid-template-columns:auto 1fr}.right{grid-column:1/-1;justify-content:space-between}.time{text-align:left;min-width:0}.marks .lbl{display:none}.marks button{width:14px;height:16px}}
+@media (prefers-reduced-motion:reduce){.phase-tag,.wall-hint{transition:none}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Among the Sierra Nevada, repainted</h1>
+    <div class="byline">after Albert Bierstadt, 1868 · painted stroke by stroke, then left alive</div>
+  </header>
+
+  <div class="stage" id="stage">
+    <canvas id="view" aria-label="Animated painting of a mountain lake with waterfalls, deer and a stormy sky"></canvas>
+    <div class="phase-tag" id="phaseTag">Sketch</div>
+    <div class="wall-hint" id="wallHint">Esc or click to leave wallpaper mode</div>
+  </div>
+
+  <div class="controls">
+    <button class="btn play" id="play" aria-label="Pause"><svg viewBox="0 0 16 16" id="playIcon"><rect x="3" y="2" width="3.5" height="12"/><rect x="9.5" y="2" width="3.5" height="12"/></svg></button>
+    <div class="track">
+      <input class="scrub" id="scrub" type="range" min="0" max="60" step="0.01" value="0" aria-label="Timeline">
+      <div class="marks" id="marks"></div>
+    </div>
+    <div class="right">
+      <span class="time" id="time">00:00.0 / 01:00</span>
+      <div class="seg" role="group" aria-label="Playback speed">
+        <button id="sp05" aria-pressed="false">0.5×</button><button id="sp1" aria-pressed="true">1×</button><button id="sp2" aria-pressed="false">2×</button>
+      </div>
+      <button class="btn" id="wall">Wallpaper</button>
+    </div>
+  </div>
+
+  <section class="notes">
+    <div>
+      <h2>Reading the reference</h2>
+      <p>A backlit alpine lake. Light breaks through a storm at upper centre and falls left onto a granite wall with two ribbon falls; snow peaks sit in the cloud to the right, a dark stand of pines and oaks closes the frame, and a herd of seven deer crosses the shallows toward a green meadow. The painting was read into a 128 × 76 colour map, quantised to the 64 colours below, and every brushstroke samples its colour from it.</p>
+      <div class="swatches" id="swatches"></div>
+    </div>
+    <div>
+      <h2>What moves once it is finished</h2>
+      <ul>
+        <li><b>Storm clouds</b> drift and billow slowly past the peaks.</li>
+        <li><b>Light shafts</b> breathe, with dust motes turning in the beam.</li>
+        <li><b>Three waterfalls</b> pour, with spray mist at their feet.</li>
+        <li><b>The lake</b> ripples, and its reflections and glints shimmer.</li>
+        <li><b>Pines, oaks and meadow grass</b> sway in gusts of wind.</li>
+        <li><b>Deer</b> lower their heads to graze; <b>ducks</b> drift; a few <b>birds</b> cross the sky.</li>
+      </ul>
+      <p class="credit" style="margin-top:14px">The camera never moves. Reference: <a href="https://commons.wikimedia.org/wiki/File:Albert_Bierstadt_-_Among_the_Sierra_Nevada,_California_-_Google_Art_Project.jpg" target="_blank" rel="noopener">Albert Bierstadt, Among the Sierra Nevada, California (1868), Smithsonian American Art Museum</a>, public domain. Keys: space plays or pauses, arrows skip 5 s.</p>
+    </div>
+  </section>
+</div>
+
+<script>
+// Reference analysis of Albert Bierstadt, "Among the Sierra Nevada, California" (1868, public domain)
+// 128x76 colour map, k-means quantised to 64 colours (palette sorted dark -> light), one char per cell.
+const REF_W = 128, REF_H = 76;
+const REF_PAL = "17131b1413191b141c18161b1c1a1c1e151d1c171c21191d21161d201e1c2519212b1b1c261d202d222024221e2b1c26301f2a36231f2a281f35252c362a233330203f27263b3626432f2b4a352d4b3f37543c3457433b5d473d634d416a534468594f735a4a7a61518567527e6a5d8f71588a76699a7c61a585678d868eb0906ea5938fbb9a78af9c94b3a5a2baa391c8a883bfac9dc5b3a5d1b590cebba6d8bd97ddc49fd6c9b8e2cba5e6d2aee3d6bfebd9b4eddec0f2e4c4f6eaccfaf4dd";
+const REF_GRID = "aaaccaacdddeegggggikkkkkkkkkkiijmmnnoooqss1z268_________-8633666554221111111111z0zzzxxxxxxxxxxyurrrxy2020yxxxtuxutrtppppppppmpmkaaaaaaaccccdddeegggihiikkkijiiijlljllnnnosz489____________-6633365752122111111zzzzzzwzxwvvtuyyyyyxxyy000000yyxxxxxuturpppppppppmaZZaaaaaacacccdeeeeffgghhhiiljjjllllnnqssw16-______-_-----9_963664885454122z1zz11zzzwzvvvvttv0yyyyyyyyyy000yy000yxrtxuttrrrrrrppaaZaaaaaaaaccccddeeeeeffhhillljlllllnqswww27______--___-9-88-86666758-757472472111zzzwxvvtttvxyyxrxyyxyyyxyyxyy0yyxurtuvvvtrrrrpaaZaaaaaaaaaabcddeefffhihiijljllllnnnoqwz259___-9-__999--899--9986868985-965574541zzzwxvvvtttttxurtxyyxxyxxxy00yyxyxuttvvvvtrrrpaaaaaaaccbbbbcdeeehllihiijjjjlnnnnoqssqww159__-999---9___77589--98887-86985689-754zzzxvvtvttttturrryyyyxxxxxyy0yyyxxxxuuvvvvtrppcacaaaacccdddddeehillljlljllnnoosqw28-7zwz25-9999989--___-_9989989866886554668-9741zwwvtttvttrrtrrtxyyyxxyxx0x0yxxxxyxvttttvvtrrdcccccccddeeeeefhjjjlllllllnoooooqsz24972258999998899--__99_99889898_88666636689741zxxvttrvttrtttrrxxuxxuuu0y0yxuxxxxyvtrrttttrtdddddddeefffffhijjjljjllllnnnnooqqsw148_7--__78789999--_-9878988888___66666656368421xxvttttttrrttrruuuuuuu322yxxxx420yvtrrrvttrredddeeefffhffhijjjjjjlllnnooooossw179-9__-99_-87899-9-__-965766666--__8-_6656339844zzxvttttttrrruttxuttuuuy2z10yx00zyxvtrrrrrrrrWUWbdefhffffhhiijjjilloooqqqswwz279-99--95459__99_-989__-8557666666-986_--9338-997221zxttttttrrruuxuyttxuuxx00xxx00xxxxtrrrrrrrrQQQPPQTbfhhffhhhijjjlnnooqqswwz2789-989-855458_8----9-9_9865886686898886_--638-998420zzxtttttttrtutxuttttxuuuyxx030yxxxvtrrrrrrrTQTQQPPQYehhhhhijjjlnnnoqssswwz489889-9778-7458-_-9-_9--9855587988888888_98638-787_ytzzzxvtttrrrrrttttrttxxxxu0yyy0xxvvtrrrrrrrrTQQQQQPPPTchhijjjllnnnoqsswwzzz1455575998855447---999__--86547988986888__-78--_-9__0yxzvxvvttrrrrrrtrrrttvyyyyy40yyxvvttrrrrrrrtTQQQQQQPPPWZfYjllllnnooqswwwzz11111244588554477898999__--8754578-_-8968-_957-______63y5txxxxtrrrrrrrrrrrtv33245400yxvvttttrrrrttTQPQTQPPKPTWYWillllnnoqsswwwz111111222585554475798898-_-9985548798_99889_95489-___-63--0330yxrrrrrrrrrrrtyy002200y0xvvy3uxxttuuuTQPQTTQPQPQTWWcejlnnoqqsswwz1211zzz12255544445479758889987754455778__--___8588_5080693_y00yyytrrrrrrrrrttvvy0000030yx83yu0yuxuutTQPQQQQQPQQWWTZYbflnnnoooqqqszwzzzz214554442444577578--9987445557779-_9___-98-_14y066-600yy3xuttrrrrrrrrttvvx0000003333y30yxuuttTTQQQQQQQPQTTTYYZZddjnnooooooooozz1224752244454557_--_-_-754455555578__-_--9---42x0y6-833yy0yxuutttrrrrrttttvxyyyy0000y0xuxuruutTQQQQQPQPPQTTQWYZZbbcejjlllnnnonsz1225552224244555---_-_9955555555779-___---_-900x1xx3vvx0x0yyyxuyyutrrrttttyvxxyyyuuyyxuuuuttttTQPPTQPQQPQYWTTYZZbdcbennlnlnonno11125552224224457---9-998755555588927--____-_6z211140tvxvx63303_03xurrttttt0vxxyyxyxxxrtupuuuutTQQPTQPQQPPTWTTbbbcdcbdfirjoronnn11124542222244449999999777557858999421-______1z14z22yttttvx26--vx0yxxutttttx0yryyyyxxuurmhuuuxuTQPPQQQPPPPTYWWbZcccdcdfefginnnlnz11124222222444577897797755599989-9411-__-84511z1z2zvvvtttvvx10yy00yyxxuvvv02sjoyvxxyxxujjtuuqwTQPPQQQPQPPQZYWbYcdcdcefefkhjllnnz111242112112445775777777557--99-9942218842221zz11xvvvvvvvtvwvvxvyv0yyyy0xy21ohdfvxyzyxsfeewxqwTQQPTQPKPQPPWYWcYcebddfeeemhllllnw111221111111244455577777558-9999__74215971141z11zwwvvvxyyvtzvvvzwwv01s010snzwfjdcvxyzzneZfswioTQQPQPKKPQQPQYWbYefbddddddkflljlls111211111111122444555755557999----785578554521211zwxxwzzxvvttvvvvxxx2nw1wjadaaqlllzzzsijbclqilTQTQQKKPKPPPQTYZZeecfddeddiejlijlszzz11zz111111224444444455578999--8544425445552210zzxxz1zzzvvvvv0y1111lq2idXUSUXsqzzzzodcZZdmaeTQQQQPKPKPQPQQYYYhechdddddhehjjjlqzz11zzzz1111z12244444455757899--8844210044454411zzzyzz0z11zxvv04441nolo11mqfVVVddszwvibcZTZdYZTQQPQPPPKKPPTWWWchedeccddcgefjjjlnszzzwwzzzzzzzz224444445777778999887520100102422211121z14442zxvx2421ljihszokkXOVdaowwodZbZYYYUYTQQQQPPQQPPQTWTZZefeecdddcgeeljjjlozzwwwwwwwwwwwwwww44444577879799---80021110112222211212444420xy042wjhjhnnfkfUOgvnlvwqdUUNMUUUUQPQPQQQPPQPPQTWYbhfdcccddceeejjijlnzwwssswwwwssssssww444457778778--_-51z24244222242222124422244xq2441lijefijsgajiwsilxncWWWPNTTNQPPQTPQQPQPPQQWWZcedcccdcceeehjijjnssssqsssssssssssssz44555799789--88982477555544424211124422ojlmq241iddacUelfaXvonhdqfbNNMMMNNNQQPQQQQTPQPQQQTYZZhdbccdcceeefjijjoqqqqqqqqqqqqqqqqqsw45578-999-7952799747775545442421122421wqhkdaewwhaUSNOYSSSSnljcahbUNPMMMMNNQQPPPQTTTQPQQQTTbYhdbcbccceeeeiiiinnqqqooqqqsssqqoqqswz57799---85875424454zvz4222444224544211nacZXUZXfhZZUYNNUJVXaaUZaUNNMMHMMNNQQPPQPQQTPKPTTTWcYfdccccccdeedihiinoqooooooqoqsooooqssw789-999-877442121zwwsssvzz122242444211msceeXXVUSVUNYUZeJNUZYNNUNNMMKMMMNNTQPQQPQQQKKPYTTWZZedcbbbbcdeddhhiklnqqoonooooooooooqqsw7---9---877521211wqsqqqsvvz42241441wwjlodXVVUadUcbZUNUUGYZZUOMOMNLMHHMMNNTQPQPPQPPPKKZZWWYYgdccbccceeddjiikklnooooooooqooonoqqswz899--9_755544421sqswqqqqvx122241zqcdVadaXOSUhaYXURYYRZDNNNONMHHMNMHMMMNNQPPQQQQPQKKKPcWWTYZdcbbbcceddefhiiklnooooonnoqsoonooqswz29-57785542222zssqqssqqqsvz2xzvqfZXaZXVeZUOOdZaZRNNVRUDNEMMEJENKNHHMMMNNQPPPPTQPQKKIKWYTWcZbcbcbcceeddfiiikljonnnnnnnqqqsqnoqswz1254455421111zwssssqqoqqsz1vqonkiadiVXSOJSJEJEJSSJVNUEJEEEEGEHHMMNHKKMPPTPPPPQTQQKKIPLbQTZccbbbbbcdeddgliikmiilnnnnnnnoqqnqnoqwz1414444211zwvssqswqssooooqoonkicdkcmXJJNJEDDDGEDEJMUNODGDGGGHEHPLLMMKMPMTPPPPMTQKKKIKKYRWebebZbbbcdedddliikiihjnnnnnnnnqooooooszwwss422211wsssqqqsqqonnnnonnmkeVUUSSVaJJSJSSDDDDDDNNRMDEDGDJHIHMPHHKHKPNTPPPPKPKFHIFIKLWWYefbbbcbcdeddeliiiiihhnnonnnnnlonnlnlnoqsooz242zzssssqssqonmllnlkmmrmcSROXSJXSOEJSEDDDDGDRWNGAEDDGJGHLMMMKKKHPPQPPPKKKIIFFFFFIYWTZefebedcdedcdemihjihhlsqnnnnllllllmmnqssooqw1wswsssssqoonlkiijmkhirrccSOJEOSJEEEDDDGGDLNRKHGBHHGGEJGHLMKHKHMPNPMMKKKIIIFFFCIIKcZRYhbhbefdedccmpngfhffhqolqoonqsjjkjjkkkmmosswwssssqnonlihhjhiZYYcdYNUOEEEVOJHNMBONBHDARLRLIIDLHDHHMGGNLKMKKKQWQPKKIIIFFFIKKFIKPNeWYZhhdifedcbgcrffgfffhnwsqwjlqqjjljlllkklnnoqqqqqnnjiigilifhZUYeeYSJJEEEJDEGGGBODGLHCYWLPILAIGGGGGHMHKKIKKMQWPKKKKKIFIFIFFIKKRRWRZYWYiZZekcbbbbfefhffiiowjljiqiijjjljkjllllmmmnnnmjifihifefbZRbcecONOEJGDBGGGEDGGCALKZILNHKCGDGGGGHGHLLIKKZQNPKKKKKIIFFFCCFFIQbbZWYWWWdYZieZZdaeeeffeifjjqsnjhlhljiiijjjjllljlllmhififefdebZNNMZbZUYRMGEDDOBEDDBDHHFFLKLILKCBFGGGGHGELKHMNWWNPKKKKKIFFFFICFKLIWZbZWWZWYbbefZZbfheeheeifiswwwljnnnsjljjjijlnllllijjihjhfdcccWWNWYZZZWLNGJDDDEDBDBDDKKLLKLLIKDDCGGGHLGGPKNRRZRNPKKKKIIIFFIICKFIILZWYWWZWbcimkgbbjiiedfeiffiniszwoswifqnljjljmjlnnljnlhjeceZcbbZWMRYUZRNMMGGEEDOJBBBACHLLLIIKIIADGCDIMGGPWRWZZPNPKKHKIFIFIIIICCFFRWYZWRWWWWWmZmYZZdbedfhffeeeoqlojvqhflqoolqolnoslonlnhhefeYYYZRJJERRYNMHLUHNKLEMBEDBDGNGICLIIIADDGGKHMRLRWWWWWZPKKKIIIFFFIIIFFFFLRZYWRWWRWWcYgWYZZieddfifeedeoqjijqffiiwwqnnowlqhnqllhhidZYYWROJJMLHHHHHINHDLNAABBMLHCLIILIHKFFDGGGMMLKRQMRRWRNPMKKIIIFFIFIIIFIILRbWRWWWRWWaYeZYYZcedddhfedddjsjilnhfhhiqqloqsisjlqoljijeZWRNOJEHHMJMHMGNNMDMBIHBBLLWLLHLILIKIACGCCHLLKIKQPKRWRPKKKKIIFFFFIFFFFFRWWYRRWRRWWcZdbYYZbedddeheeedhjjjnsffhhijl0ilqhoqjonojhibZWRJDEGJGGGDDDMJHGMDLLZABQRRFLKHFWCICADCFGKGZKKPYRLKOTPMKKKIIIIFFCIFFFCIRWYWWWWWYYdadcYYZZfeeeeffeeefjhjllfffhhikonjijniqqoijhlbZWNEEDDDGGGDDEHGGGRDLWMBBNLLILIFCICFCCACFFRHHKKPLWLNRNPKIKKFFFFFIIFCCCCCLWYWWWWWYZcacdZZZZbeeeffhffeejjjlifffhhixjihhhflnjljjhibYRJDDDDDDGDEDGCDGGUBHNBBBHRRIRIKIANFCNBFFFKNMWZQWRWUYUPMKLKIIKKIIFCCCCCFFRWKRIRRZZbdeZZbbbbfffffjhfefnjjohhhhhihnihhhhinlqjlhfncZRJGDDDDDDDGDDDNCHRCIIMBBWWWIYIHWAKCIUAHIHUGLYbWURRUUUPKKKIFICCCFCFCCACAACCFCAILZYKLIKFHcZULYfhfhmihfljjliiiiiiimiiiilojsjlnfdldZUHGDDDDDDDDDDCHIKRCAWMCBWWWINLNWCFIFWCIRLNRUXWRNNUUNULKIIFIIFCFFCCCCAACCACCCACCLRIFNNGMcbLJRekbnommknqooqmlljjlmjjjlqjwnolnddldZZYGGDDDODDBDDHHWGWWAWWLCAWWNUSGUSRZCLHARNUNNJMJNNUURRMKHIKKIFFCCFFIFFCCACACAAAACIFCNdadekbahrkrx000000yyyyuutttrrppprnommmkgggeccZSMESMOEGBDDAHMGHRCHWWIBRVVGEGDNYVRUNAVDEOSEDGEMJNUUKHIGCFCCCCAAAAABABAAAAAAAACHAAMNMMUYUNYcfZhkikikjjjiihhhiikihihiojnihhZUXSJJJJJJJEJDDSSSVXXXaXZBBBIBABBBBBBABDDDUADDDDDDDDEMNNSSKHGFFCCAAAABAABBBBAACAAAACMMGGGGGGTZNNNZdZhhhggmiilffgghhhkhhhhhfjjnihZZfcZZUJMGNEMHMJNNNNUcSJEDGZABBBBBBBDBBBDBHDADGJEJJONNOOMOKHFFFCCACACAAAABBACCFCCCCGMTMMMMNNTYTUZcegkkkkkmmkmkgggggfnhfffeehfhffcZfbYWNMHHHENMJHLLLLULNfbbRNNIGGDDBEDEJDABNMDBEJJEJJEGGEHOHGFFCCCCCCCAAAABBBGMKIKHMMQTTPTTTTTTTZaceegigggkiijigeeeeehhieffeejhlfdbebYTOMHHHJMMLLLLLLRRWfcfXSVZZXXXXVVSSOSEDSEEBDBDDEGGDEEJHFFCGCCCAAACAAAAAAIMLKKKPMPTTTYYYZaadgggggiiggiiiiljeeeeeehmefheihfiihddacYUSOMHMMONNXRRRRWbedVSVXXXVVVVVOSOVOJEJEOJJOOJJJJEEJOJHFGCCCAAAAACCAACCFKPLKMMQQTTTQYTTTTYaddeikkkkkkmkkjlggggfhhoihYehjfhhheRNcaXMSNNNUNRUaJZfhfaVSVVSVVVVVOOJOSJJOJJEEEJJJJOOOOJJSJOIGCCCAAAAAAAAACCCILLLKKPQQTTTQYQTQTUZZbcffgimkmnnmmmkkikmmkkkkcbZkhiWcgZGGHAaGCMXOZYSgESXXSSLVVXVSSSOOOSOJGGHDJJGEXYRNKJJEJJMGJJGGCCCCCACAAAACCFFKLPMKMQQTTTTTYQTQTYZZcdfegkkkmmmmmommmnnmmmmmmehmmokimaSGdXacXVVVVVVSVSUXXXaMVVSSOOJSOOJOSMGBNOXEDBBDDEJGGJGGDOFGCCCDAAACCFFCCFFKPPMKKPQQQTYTcQQMYYaacdfeiiimkkmmommmkmmmmkmmnmmmmnggiegfecaVSVSSVVVVXVXXXSESOSSSJJOOJEUVBBDBDBBBBDDDADEEEEJJOUHGFCCCAACCGFFIFFFILLKHHPQTQUcYYTUUcccaccefggkkiklmkmgckgggkkniiiiieaacfcYONSVVOSSSVSXSVVXOOSSJSSJJRGEEXGUEBBBDBGBDMLIDDDEEOEJNOGHFGCCCACCFCFFFFFFKKNKKKPPQTTTTNTYZUZacaeZZdgkklkgkgkegmXgJOlklkgdddekVXUVXVVXaUSSVSXSUNVOXSJJJEJOEEOBBBDaDBBDEDBEAEELDDDJJONSJGGGFFCCCCCFFFCFFFFKHHIKKKMKNMMUYNTUHTYZZYdccgkkkgVXedcaVVamgdZVaabccdegggdOJHJJNUUHOEJVSOSaVOGJEBDDOBBBBEGVDDDBEBBBEEDGDDDEOEVGHGHGFCCCCCCFFFGMGGCUYUHKKHHKMMMMGGESOTUYYUdXdiddkegVXSScJSUZSOJOONNJOJOSOVOSVSXVXaSDDDENJJDGEEDABDABFJBBBBJEDEBDADODGEEDEEEJJJUSJEHFGCFCCCFFFGCGGCACFCZHIHMHHHJDEDGODEGESVcVSXggaamSJEOOSJJEOJOOOONUEOONSOOSJJJEMRLYZaJJDDJDABBBBBBBJJBBDHEEGDDDGDNDDJDJSEDDEOEJJJJGCCCFGGGGGCCHGCAACGDNLXMOMHJDEDEXSDEDDBDDSEVEEDMRaROJJOOEOSJDEOJJEUOJOJSJEEVGJUZZZZMJJEEDDBBBBBBBBDAAEHJOJJGDDEGGEEEEEAGJJGGGGOJHIGGGGICHGFGPGAAADCODGGOSNUJHJDBEJJVDEEEXOOEOYXUSEOJEDDDEEGEEEEJJOJGEJJEOVJHaUXSYYZacNSOEZDDAAABJBOGSDOEEOOOJOEJJJOEDGGGEOOJNLLKHGHGGGHGGGWHOMMNMMNJEGNZYULNODBDEDDOEJOEOVOGHOHVEDJMEDDDEDJEDOEEEEHUHOGEEEEOMOSJYYZdYRYNHDGGDDDDDDOSJEEJJSVOHJXVVVSSJOaXXJVEGHIG";
+
+</script>
+<script>
+// ============================================================================
+// Sierra Painter — paints a reference scene stroke by stroke, then brings it to life.
+// Pure function of time: render(t). Base painting is cached incrementally.
+// ============================================================================
+(function () {
+'use strict';
+const W = 1920, H = 1080;
+const IMG_H = 1148, Y_OFF = 34;               // reference is 1920x1148, cropped to 16:9
+const DUR = 60;                                // timeline length (s); life continues past it
+const PHASES = [
+  { t: 0,    name: 'Sketch' },
+  { t: 6.5,  name: 'Underpainting' },
+  { t: 20.5, name: 'Detail' },
+  { t: 30,   name: 'Alive' },
+];
+
+// ---------------------------------------------------------------- utils
+function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const lerp = (a, b, t) => a + (b - a) * t;
+const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+const P = (nx, ny) => [nx * W, ny * IMG_H - Y_OFF];            // normalised ref -> canvas px
+const PL = arr => arr.map(p => P(p[0], p[1]));
+function inPoly(x, y, poly) { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [xi, yi] = poly[i], [xj, yj] = poly[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c; }
+function vnoise(seed) { const r = mulberry32(seed); const N = 256, tab = new Float32Array(N * N); for (let i = 0; i < N * N; i++) tab[i] = r(); return (x, y) => { const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi; const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf); const a = tab[((yi & 255) * N) + (xi & 255)], b = tab[((yi & 255) * N) + ((xi + 1) & 255)], c = tab[(((yi + 1) & 255) * N) + (xi & 255)], d = tab[(((yi + 1) & 255) * N) + ((xi + 1) & 255)]; return lerp(lerp(a, b, u), lerp(c, d, u), v); }; }
+const noise = vnoise(7);
+
+// ---------------------------------------------------------------- reference field (analysis)
+const A64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+const pal = []; for (let i = 0; i < 64; i++) pal.push([0, 2, 4].map(o => parseInt(REF_PAL.substr(i * 6 + o, 2), 16)));
+const FW = REF_W, FH = REF_H;
+const field = new Float32Array(FW * FH * 3);
+for (let k = 0; k < FW * FH; k++) { const c = pal[A64.indexOf(REF_GRID[k])] || [128, 128, 128]; field[k * 3] = c[0]; field[k * 3 + 1] = c[1]; field[k * 3 + 2] = c[2]; }
+// light 3x3 smoothing so quantisation steps disappear under the brush
+(function () { const tmp = field.slice(); for (let y = 0; y < FH; y++) for (let x = 0; x < FW; x++) for (let ch = 0; ch < 3; ch++) { let s = 0, n = 0; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const xx = clamp(x + dx, 0, FW - 1), yy = clamp(y + dy, 0, FH - 1); const w = (dx === 0 && dy === 0) ? 4 : 1; s += tmp[(yy * FW + xx) * 3 + ch] * w; n += w; } field[(y * FW + x) * 3 + ch] = s / n; } })();
+function fieldAt(x, y) { // canvas px -> rgb
+  const nx = x / W, ny = (y + Y_OFF) / IMG_H;
+  const gx = clamp(nx * FW - 0.5, 0, FW - 1.001), gy = clamp(ny * FH - 0.5, 0, FH - 1.001);
+  const x0 = Math.floor(gx), y0 = Math.floor(gy), fx = gx - x0, fy = gy - y0;
+  const o = [0, 0, 0];
+  for (let ch = 0; ch < 3; ch++) {
+    const a = field[(y0 * FW + x0) * 3 + ch], b = field[(y0 * FW + x0 + 1) * 3 + ch], c = field[((y0 + 1) * FW + x0) * 3 + ch], d = field[((y0 + 1) * FW + x0 + 1) * 3 + ch];
+    o[ch] = lerp(lerp(a, b, fx), lerp(c, d, fx), fy);
+  }
+  return o;
+}
+const lum = c => (c[0] * 0.3 + c[1] * 0.59 + c[2] * 0.11) / 255;
+function lumAt(x, y) { return lum(fieldAt(x, y)); }
+function gradAt(x, y, h) { h = h || 12; return [(lumAt(x + h, y) - lumAt(x - h, y)) / (2 * h), (lumAt(x, y + h) - lumAt(x, y - h)) / (2 * h)]; }
+const rgba = (c, a, k) => { k = k || 1; return `rgba(${clamp(c[0] * k, 0, 255) | 0},${clamp(c[1] * k, 0, 255) | 0},${clamp(c[2] * k, 0, 255) | 0},${a})`; };
+const mix3 = (a, b, t) => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
+
+// ---------------------------------------------------------------- scene geometry (from analysis)
+const G = {
+  skyline: PL([[0,.128],[.04,.14],[.08,.155],[.1,.175],[.105,.18],[.12,.2],[.17,.218],[.2,.225],[.255,.235],[.262,.30],[.3,.36],[.36,.34],[.42,.33],[.46,.30],[.5,.27],[.537,.258],[.58,.24],[.61,.215],[.625,.2],[.64,.16],[.653,.136],[.668,.16],[.681,.172],[.7,.19],[.74,.225],[.775,.26],[.8,.3],[.81,.3],[.84,.285],[.86,.27],[.9,.285],[.95,.25],[.97,.28],[1,.29]]),
+  cliff: PL([[0,.128],[.04,.14],[.08,.155],[.1,.175],[.105,.18],[.12,.2],[.17,.218],[.2,.225],[.255,.235],[.265,.37],[.28,.45],[.29,.5],[.3,.6],[.33,.7],[.34,.772],[0,.772]]),
+  lake: PL([[0,.772],[.705,.772],[.70,.795],[.62,.805],[.56,.83],[.49,.862],[.46,.888],[.36,.89],[.3,.915],[.2,.925],[.1,.925],[0,.92]]),
+  trees: PL([[.6,.78],[.605,.66],[.63,.56],[.66,.5],[.7,.46],[.73,.4],[.75,.385],[.79,.33],[.81,.3],[.83,.3],[.86,.27],[.9,.29],[.93,.28],[.95,.25],[.97,.285],[1,.29],[1,.8],[.9,.8],[.8,.79],[.7,.785]]),
+  peakMain: PL([[.58,.3],[.6,.25],[.625,.2],[.64,.16],[.653,.132],[.668,.16],[.681,.168],[.7,.19],[.74,.222],[.78,.262],[.78,.32],[.58,.32]]),
+  peakFar: PL([[.855,.25],[.9,.21],[.9375,.19],[.97,.215],[1,.235],[1,.27],[.86,.27]]),
+  mid: PL([[.262,.30],[.3,.36],[.36,.34],[.42,.33],[.46,.30],[.5,.27],[.537,.258],[.58,.24],[.62,.3],[.66,.5],[.63,.56],[.605,.66],[.6,.772],[.34,.772],[.33,.7],[.3,.6],[.29,.5],[.28,.45],[.265,.37]]),
+  shoreTrees: PL([[.19,.772],[.195,.735],[.23,.728],[.27,.73],[.3,.735],[.33,.745],[.335,.772]]),
+  falls: [
+    { a: P(.2, .262), b: P(.207, .47), w: 7 },
+    { a: P(.222, .60), b: P(.232, .665), w: 9 },
+    { a: P(.226, .665), b: P(.24, .738), w: 16 },
+    { a: P(.457, .682), b: P(.459, .768), w: 7 },
+  ],
+  pines: [ // nx, topNy, baseNy, halfWidthNx
+    [.81, .30, .78, .022], [.785, .345, .78, .02], [.95, .252, .8, .026], [.99, .29, .8, .022], [.925, .30, .8, .018], [.905, .325, .8, .016], [.745, .39, .78, .018],
+  ],
+  oaks: [ // crown centre nx,ny, crown rx, trunk base nx
+    { c: [.862, .31], r: .038, base: [.872, .79], lean: -.01 },
+    { c: [.725, .47], r: .04, base: [.728, .785], lean: .012 },
+    { c: [.765, .43], r: .035, base: [.763, .79], lean: -.004 },
+    { c: [.665, .56], r: .03, base: [.668, .78], lean: .0 },
+  ],
+  deer: [ // nx, feet ny, facing, stag, grazing phase
+    [.496, .872, -1, 0, 0.1], [.537, .877, -1, 0, 0.6], [.563, .876, -1, 0, 0.35], [.58, .87, -1, 1, 0.8], [.606, .867, 1, 0, 0.2], [.618, .865, -1, 0, 0.55], [.645, .863, 1, 0, 0.9],
+  ],
+  ducks: [[.24, .912], [.262, .926], [.297, .931], [.319, .92], [.343, .936]],
+};
+const lakeTopY = P(0, .772)[1];
+function region(x, y) {
+  if (inPoly(x, y, G.lake)) return 'water';
+  if (inPoly(x, y, G.trees)) return 'trees';
+  if (inPoly(x, y, G.cliff)) return y < lakeTopY ? 'cliff' : 'ground';
+  // above skyline?
+  const sk = skylineY(x); if (y < sk) return 'sky';
+  if (y < lakeTopY) return 'mountain';
+  return 'ground';
+}
+function skylineY(x) { const s = G.skyline; for (let i = 0; i < s.length - 1; i++) { if (x >= s[i][0] && x <= s[i + 1][0]) { const t = (x - s[i][0]) / Math.max(1e-6, s[i + 1][0] - s[i][0]); return lerp(s[i][1], s[i + 1][1], t); } } return s[s.length - 1][1]; }
+const REGION_ORDER = { sky: 0, mountain: 1, cliff: 2, trees: 3, water: 4, ground: 5 };
+
+// ---------------------------------------------------------------- brush primitives
+function strokePath(ctx, pts) { ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]); if (pts.length === 2) ctx.lineTo(pts[1][0], pts[1][1]); else { for (let i = 1; i < pts.length - 1; i++) { const mx = (pts[i][0] + pts[i + 1][0]) / 2, my = (pts[i][1] + pts[i + 1][1]) / 2; ctx.quadraticCurveTo(pts[i][0], pts[i][1], mx, my); } const l = pts[pts.length - 1]; ctx.lineTo(l[0], l[1]); } ctx.stroke(); }
+function offsetPts(pts, d) { const out = []; for (let i = 0; i < pts.length; i++) { const a = pts[Math.max(0, i - 1)], b = pts[Math.min(pts.length - 1, i + 1)]; let nx = -(b[1] - a[1]), ny = b[0] - a[0]; const l = Math.hypot(nx, ny) || 1; out.push([pts[i][0] + nx / l * d, pts[i][1] + ny / l * d]); } return out; }
+function brush(ctx, pts, width, col, alpha, bristles, seed) {
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.lineWidth = width; ctx.strokeStyle = rgba(col, alpha); strokePath(ctx, pts);
+  if (bristles) {
+    const r = mulberry32(seed);
+    for (let k = 0; k < bristles; k++) {
+      const off = (r() - 0.5) * width * 0.85, kk = 0.86 + r() * 0.3;
+      ctx.lineWidth = Math.max(0.8, width * (0.08 + r() * 0.1));
+      ctx.strokeStyle = rgba(col, alpha * 0.35, kk);
+      strokePath(ctx, offsetPts(pts, off));
+    }
+  }
+}
+function dab(ctx, x, y, r, col, alpha) { ctx.fillStyle = rgba(col, alpha); ctx.beginPath(); ctx.ellipse(x, y, r, r * 0.8, 0, 0, Math.PI * 2); ctx.fill(); }
+
+// ---------------------------------------------------------------- build the painting as timed ops
+const ops = [];
+function add(t, fn) { ops.push({ t, fn }); }
+function spread(list, t0, t1, fn) { const n = list.length; list.forEach((it, i) => add(t0 + (t1 - t0) * (n > 1 ? i / (n - 1) : 0), ctx => fn(ctx, it))); }
+
+// paper
+const paper = document.createElement('canvas'); paper.width = W; paper.height = H;
+(function () { const g = paper.getContext('2d'); g.fillStyle = '#ebe2cf'; g.fillRect(0, 0, W, H); const r = mulberry32(3); for (let i = 0; i < 26000; i++) { const x = r() * W, y = r() * H, v = r(); g.fillStyle = v < .5 ? `rgba(120,100,70,${.03 + r() * .05})` : `rgba(255,252,240,${.05 + r() * .08})`; g.fillRect(x, y, 1 + r() * 2.5, 1 + r() * 1.5); } for (let i = 0; i < 500; i++) { const x = r() * W, y = r() * H, a = r() * Math.PI; g.strokeStyle = `rgba(140,120,90,${.04 + r() * .05})`; g.lineWidth = .6; g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(a) * 20, y + Math.sin(a) * 20); g.stroke(); } const vg = g.createRadialGradient(W / 2, H / 2, H * .3, W / 2, H / 2, H * 1.05); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(90,70,40,.18)'); g.fillStyle = vg; g.fillRect(0, 0, W, H); })();
+add(0, ctx => ctx.drawImage(paper, 0, 0));
+
+// ---- 1. graphite sketch (1.2 → 6.5 s)
+(function () {
+  const r = mulberry32(11);
+  const lines = [];
+  const pushLine = (pts, weight) => lines.push({ pts, weight: weight || 1 });
+  pushLine(G.skyline.slice(0, 9)); pushLine(G.cliff.slice(8, 15));
+  pushLine(G.skyline.slice(9, 18), .6); pushLine(G.peakMain.slice(1, 10), 1);
+  pushLine(G.peakFar.slice(0, 5), .7);
+  pushLine(PL([[.3, .6], [.35, .5], [.4, .47], [.44, .43], [.5, .4], [.537, .3], [.56, .35], [.6, .42], [.62, .5]]), .6);
+  pushLine(PL([[.33, .77], [.36, .7], [.4, .66], [.45, .62], [.5, .64], [.55, .6], [.6, .62]]), .5);
+  pushLine(G.trees.slice(0, 16), 1);
+  pushLine(PL([[0, .772], [.2, .772], [.4, .771], [.6, .772], [.705, .772]]), 1.1);
+  pushLine(G.lake.slice(3, 12), .8);
+  pushLine(PL([[.46, .9], [.55, .88], [.65, .86], [.8, .85], [1, .84]]), .6);
+  G.falls.forEach(f => pushLine([f.a, f.b], .6));
+  G.pines.forEach(p => pushLine(PL([[p[0], p[1]], [p[0], p[2]]]), .8));
+  G.oaks.forEach(o => { const c = P(o.c[0], o.c[1]); const rr = o.r * W; const pts = []; for (let a = 0; a <= 1.001; a += 1 / 14) { const ang = Math.PI * (1.05 + a * .9); pts.push([c[0] + Math.cos(ang) * rr * (1 + .12 * Math.sin(a * 17)), c[1] + Math.sin(ang) * rr * .8]); } pushLine(pts, .8); pushLine([P(o.c[0] + o.lean, o.c[1] + .03), P(o.base[0], o.base[1])], .9); });
+  G.deer.forEach(d => { const p = P(d[0], d[1]); pushLine([[p[0] - 12, p[1] - 18], [p[0] + 12, p[1] - 18]], .5); });
+  // wobble + split each line into short segments timed in sequence
+  const segs = [];
+  lines.forEach((L, li) => {
+    const pts = []; for (let i = 0; i < L.pts.length - 1; i++) { const a = L.pts[i], b = L.pts[i + 1]; const n = Math.max(1, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / 18)); for (let k = 0; k < n; k++) { const t = k / n; pts.push([lerp(a[0], b[0], t) + (r() - .5) * 2.2, lerp(a[1], b[1], t) + (r() - .5) * 2.2]); } } pts.push(L.pts[L.pts.length - 1]);
+    for (let i = 0; i < pts.length - 1; i++) segs.push({ a: pts[i], b: pts[i + 1], w: L.weight, li });
+  });
+  spread(segs, 1.2, 6.3, (ctx, s) => { ctx.lineCap = 'round'; ctx.strokeStyle = `rgba(58,50,44,${.5 * s.w + .1})`; ctx.lineWidth = 1.1 + s.w * .9; ctx.beginPath(); ctx.moveTo(s.a[0], s.a[1]); ctx.lineTo(s.b[0], s.b[1]); ctx.stroke(); ctx.strokeStyle = `rgba(58,50,44,${.12 * s.w})`; ctx.lineWidth = .8; ctx.beginPath(); ctx.moveTo(s.a[0] + 1.5, s.a[1] - 1); ctx.lineTo(s.b[0] + 1.5, s.b[1] - 1); ctx.stroke(); });
+})();
+
+// ---- 1b. tonal wash (imprimatura) laid in broad horizontal bands, 6.5 → 7.4 s
+const smoothField = document.createElement('canvas'); smoothField.width = W; smoothField.height = H;
+(function () { const small = document.createElement('canvas'); small.width = FW; small.height = FH; const sg = small.getContext('2d'); const id = sg.createImageData(FW, FH); for (let k = 0; k < FW * FH; k++) { id.data[k * 4] = field[k * 3]; id.data[k * 4 + 1] = field[k * 3 + 1]; id.data[k * 4 + 2] = field[k * 3 + 2]; id.data[k * 4 + 3] = 255; } sg.putImageData(id, 0, 0); const g = smoothField.getContext('2d'); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; g.filter = 'blur(10px)'; g.drawImage(small, 0, -Y_OFF, W, IMG_H); })();
+(function () { const bands = 14; for (let i = 0; i < bands; i++) add(6.5 + i * (.85 / bands), ctx => { const y0 = i * H / bands - 20, h = H / bands + 40; ctx.save(); ctx.globalAlpha = .7; ctx.beginPath(); for (let x = 0; x <= W; x += 60) ctx.lineTo(x, y0 + Math.sin(x * .01 + i) * 10); for (let x = W; x >= 0; x -= 60) ctx.lineTo(x, y0 + h + Math.sin(x * .013 + i * 2) * 10); ctx.closePath(); ctx.clip(); ctx.drawImage(smoothField, 0, 0); ctx.restore(); }); })();
+
+// ---- 2. underpainting: layered curved strokes that follow the reference's tonal contours
+function makeStroke(x, y, R, r, maxSteps) {
+  const reg = region(x, y);
+  const c0 = fieldAt(x, y);
+  const pts = [[x, y]];
+  let px = x, py = y, lastDx = 0, lastDy = 0;
+  const steps = reg === 'cliff' && R < 20 ? Math.min(maxSteps, 2) : maxSteps;
+  for (let i = 0; i < steps; i++) {
+    let dx, dy;
+    if (reg === 'water') { dx = 1; dy = (r() - .5) * .08; }
+    else if (reg === 'cliff') { dx = -.12 + (r() - .5) * .15; dy = 1; }
+    else if (reg === 'trees') { dx = (r() - .5) * .6; dy = 1; }
+    else if (reg === 'ground') { dx = 1; dy = (r() - .5) * .4; }
+    else { const g = gradAt(px, py, R); const m = Math.hypot(g[0], g[1]); const hx = 1, hy = (noise(px * .003, py * .003) - .5) * .9; if (m < 2e-4) { dx = hx; dy = hy; } else { let cx = -g[1] / m, cy = g[0] / m; if (cx * hx + cy * hy < 0) { cx = -cx; cy = -cy; } const wC = reg === 'sky' ? .45 : .75; dx = cx * wC + hx * (1 - wC); dy = cy * wC + hy * (1 - wC); } }
+    if (dx * lastDx + dy * lastDy < 0) { dx = -dx; dy = -dy; }
+    const l = Math.hypot(dx, dy) || 1; dx /= l; dy /= l; lastDx = dx; lastDy = dy;
+    px += dx * R * .7; py += dy * R * .7;
+    if (px < -R || px > W + R || py < -R || py > H + R) break;
+    const c = fieldAt(px, py);
+    if (i > 1 && Math.abs(lum(c) - lum(c0)) > .05) break;
+    if (region(px, py) !== reg && i > 0) break;
+    pts.push([px, py]);
+  }
+  if (pts.length === 1) pts.push([x + R * .4, y + (r() - .5) * 2]);
+  const k = .93 + r() * .14;
+  const col = [c0[0] * k + (r() - .5) * 8, c0[1] * k + (r() - .5) * 8, c0[2] * k + (r() - .5) * 8];
+  return { pts, col, reg, x, y };
+}
+function underPass(R, spacing, t0, t1, keep, bristles, maxSteps, seed, alpha) {
+  const r = mulberry32(seed); const list = [];
+  for (let y = -spacing / 2; y < H + spacing; y += spacing) for (let x = -spacing / 2; x < W + spacing; x += spacing) {
+    const jx = x + (r() - .5) * spacing, jy = y + (r() - .5) * spacing;
+    const g = gradAt(jx, jy, R); const gm = Math.hypot(g[0], g[1]) * R;
+    if (!keep(jx, jy, gm, r)) continue;
+    const s = makeStroke(jx, jy, R, r, maxSteps);
+    s.key = REGION_ORDER[s.reg] * 4000 + jy * .9 + jx * .12 + r() * 90;
+    s.w = R * (0.8 + r() * .4); s.seed = (r() * 1e9) | 0;
+    list.push(s);
+  }
+  list.sort((a, b) => a.key - b.key);
+  spread(list, t0, t1, (ctx, s) => brush(ctx, s.pts, s.w, s.col, alpha, bristles, s.seed));
+  return list.length;
+}
+const nA = underPass(34, 30, 7.4, 12.0, () => true, 3, 5, 101, .72);
+const nB = underPass(15, 15, 12.0, 16.6, (x, y, gm, r) => gm > .02 || r() < .45, 2, 5, 202, .78);
+const nC = underPass(7, 8, 16.6, 20.5, (x, y, gm, r) => gm > .03 || r() < .12, 0, 4, 303, .85);
+
+// ---- 3. detail passes (data-driven from the reference + hand-placed elements)
+(function () {
+  const r = mulberry32(404);
+  const sample = (n, poly, test) => { const out = []; let guard = 0; const bb = poly ? poly.reduce((b, p) => [Math.min(b[0], p[0]), Math.min(b[1], p[1]), Math.max(b[2], p[0]), Math.max(b[3], p[1])], [1e9, 1e9, -1e9, -1e9]) : [0, 0, W, H]; while (out.length < n && guard++ < n * 30) { const x = lerp(bb[0], bb[2], r()), y = lerp(bb[1], bb[3], r()); if (poly && !inPoly(x, y, poly)) continue; if (test && !test(x, y)) continue; out.push([x, y]); } return out; };
+  const sunX = P(.43, .15);
+
+  // clouds: impasto billows
+  const clouds = sample(1400, null, (x, y) => region(x, y) === 'sky').map(p => ({ p, d: Math.hypot(p[0] - sunX[0], p[1] - sunX[1]) + r() * 200 })).sort((a, b) => a.d - b.d);
+  spread(clouds, 20.5, 23.2, (ctx, o) => { const [x, y] = o.p; const c = fieldAt(x, y); const L = lum(c); const g = gradAt(x, y, 10); const m = Math.hypot(g[0], g[1]) || 1; const dx = -g[1] / m, dy = g[0] / m; const len = 10 + r() * 26; const pts = [[x - dx * len / 2, y - dy * len / 2], [x + dx * len * .1 + (r() - .5) * 6, y + dy * len * .1 + (r() - .5) * 6], [x + dx * len / 2, y + dy * len / 2]]; const col = L > .6 ? mix3(c, [255, 246, 222], .18 + r() * .12) : mix3(c, [70, 58, 60], .08 + r() * .1); brush(ctx, pts, 4 + r() * 9, col, .32, 0, 0); });
+  // sun glow
+  for (let i = 0; i < 6; i++) add(22.4 + i * .12, ctx => { ctx.save(); ctx.globalCompositeOperation = 'screen'; const g = ctx.createRadialGradient(sunX[0], sunX[1], 10, sunX[0], sunX[1], 520); g.addColorStop(0, 'rgba(255,244,214,.07)'); g.addColorStop(.5, 'rgba(255,232,190,.03)'); g.addColorStop(1, 'rgba(255,232,190,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); ctx.restore(); });
+  // snow peaks: lit left faces, cool shadowed right faces, fading into cloud at the base
+  const massifs = [
+    { ridge: PL([[.585,.29],[.6,.25],[.617,.215],[.625,.205],[.635,.18],[.645,.15],[.653,.136],[.66,.15],[.668,.165],[.675,.17],[.681,.168],[.69,.18],[.705,.2],[.72,.215],[.735,.22],[.75,.235],[.765,.245],[.78,.255],[.8,.28]]), apexes: [P(.653,.136), P(.681,.168), P(.625,.205), P(.78,.255)], base: P(0,.33)[1] },
+    { ridge: PL([[.855,.25],[.88,.225],[.9,.21],[.925,.195],[.9375,.19],[.95,.2],[.97,.215],[1,.23]]), apexes: [P(.9375,.19)], base: P(0,.275)[1] },
+    { ridge: PL([[.51,.29],[.525,.27],[.537,.258],[.55,.27],[.57,.3]]), apexes: [P(.537,.258)], base: P(0,.34)[1] },
+  ];
+  const ridgeY = (m, x) => { const s = m.ridge; if (x < s[0][0] || x > s[s.length - 1][0]) return null; for (let i = 0; i < s.length - 1; i++) if (x >= s[i][0] && x <= s[i + 1][0]) return lerp(s[i][1], s[i + 1][1], (x - s[i][0]) / Math.max(1e-6, s[i + 1][0] - s[i][0])); return null; };
+  const snowOps = [];
+  massifs.forEach((m, mi) => { const x0 = m.ridge[0][0], x1 = m.ridge[m.ridge.length - 1][0]; const n = Math.round((x1 - x0) * (mi === 0 ? 2.6 : 1.8)); for (let i = 0; i < n; i++) { const x = lerp(x0, x1, r()); const ry = ridgeY(m, x); if (ry == null) continue; const y = ry + Math.pow(r(), 1.6) * (m.base - ry); let ap = m.apexes[0], bd = 1e9; m.apexes.forEach(a => { const d = Math.abs(a[0] - x) + Math.abs(a[1] - ry) * .5; if (d < bd) { bd = d; ap = a; } }); snowOps.push({ x, y, ry, lit: x < ap[0] + (r() - .5) * 14, fade: (y - ry) / (m.base - ry) }); } });
+  snowOps.sort((a, b) => a.ry - b.ry);
+  spread(snowOps, 22.6, 24.6, (ctx, o) => { const c = fieldAt(o.x, o.y); const side = o.lit ? -1 : 1; const ang = Math.PI / 2 + side * (.5 + r() * .45); const len = 5 + r() * 12; const col = o.lit ? mix3([248, 243, 232], c, .2 + o.fade * .45) : mix3(mix3(c, [150, 148, 162], .35), [232, 230, 232], r() < .2 ? .5 : 0); const a = (1 - o.fade * .9) * (o.lit ? .55 : .45); brush(ctx, [[o.x, o.y], [o.x + Math.cos(ang) * len * .5, o.y + Math.sin(ang) * len * .5 + (r() - .5) * 2], [o.x + Math.cos(ang) * len, o.y + Math.sin(ang) * len]], 3 + r() * 5, col, a, 0, 0); });
+  // mist veils over the peak bases so they sink into cloud
+  const veils = []; massifs.forEach(m => { for (let i = 0; i < 40; i++) { const x = lerp(m.ridge[0][0], m.ridge[m.ridge.length - 1][0], r()); veils.push([x, m.base - r() * 40]); } });
+  spread(veils, 24.4, 24.8, (ctx, p) => { const c = fieldAt(p[0], p[1]); brush(ctx, [[p[0] - 30, p[1]], [p[0] + 30, p[1] - 4]], 14 + r() * 14, mix3(c, [240, 232, 214], .3), .22, 0, 0); });
+  // middle rocky mountains
+  const rocks = sample(900, G.mid).sort((a, b) => a[1] - b[1]);
+  spread(rocks, 23.4, 25.4, (ctx, p) => { const [x, y] = p; const c = fieldAt(x, y); const L = lum(c); const ang = (r() < .5 ? .95 : 2.2) + (r() - .5) * .4; const len = 6 + r() * 16; brush(ctx, [[x, y], [x + Math.cos(ang) * len, y + Math.sin(ang) * len]], 2 + r() * 4, c.map(v => v * (L > .5 ? 1.05 : .9)), .45, 0, 0); ctx.globalAlpha = 1; if (L > .45 && r() < .3) brush(ctx, [[x + 2, y], [x + 2 + Math.cos(ang) * len * .4, y + Math.sin(ang) * len * .4]], 1.2, mix3(c, [255, 236, 200], .25), .3, 0, 0); });
+  // cliff striations
+  const cliffPts = sample(900, G.cliff, (x, y) => y < lakeTopY - 4).sort((a, b) => a[0] - b[0] + (r() - .5) * 120);
+  spread(cliffPts, 24.6, 26.2, (ctx, p) => { const [x, y] = p; const c = fieldAt(x, y); const L = lum(c); const len = 8 + r() * 26; const dx = -.15 + (r() - .5) * .3; const lit = L > .2 && r() < .45 + L; const col = lit ? mix3(c.map(v => v * (1.12 + L * .3)), [210, 170, 125], .1) : c.map(v => v * .75); brush(ctx, [[x, y], [x + dx * len * .5 + (r() - .5) * 2, y + len * .5], [x + dx * len, y + len]], 1.5 + r() * 3, col, lit ? .26 : .3, 0, 0); });
+  // waterfalls (static paint; motion is added live)
+  const fallStrokes = []; G.falls.forEach(f => { for (let i = 0; i < 20; i++) fallStrokes.push(f); });
+  spread(fallStrokes, 26.0, 27.0, (ctx, f) => { const ox = (r() - .5) * f.w, spreadK = 1 + r() * .6; const a = [f.a[0] + ox * .5, f.a[1]], b = [f.b[0] + ox * spreadK, f.b[1]]; const t0 = r() * .3, t1 = .6 + r() * .4; brush(ctx, [[lerp(a[0], b[0], t0), lerp(a[1], b[1], t0)], [lerp(a[0], b[0], (t0 + t1) / 2) + (r() - .5) * 2, lerp(a[1], b[1], (t0 + t1) / 2)], [lerp(a[0], b[0], t1), lerp(a[1], b[1], t1)]], .6 + r() * 1.1, [236, 232, 222], .06 + r() * .1, 0, 0); if (r() < .1) brush(ctx, [a, b], f.w * 1.8, [214, 208, 196], .035, 0, 0); });
+  // waterfall reflection in lake
+  add(27.0, ctx => { const x = P(.458, 0)[0], y0 = P(0, .79)[1], y1 = P(0, .85)[1]; for (let i = 0; i < 14; i++) { const ox = (r() - .5) * 5; brush(ctx, [[x + ox, y0 + r() * 20], [x + ox, y1 - r() * 40]], 1 + r() * 1.5, [225, 220, 210], .18, 0, 0); } });
+  // little lakeshore trees on the far left
+  const st = sample(260, G.shoreTrees, (x, y) => lumAt(x, y) < .3);
+  spread(st, 26.4, 27.1, (ctx, p) => { const c = fieldAt(p[0], p[1]); ctx.fillStyle = rgba(mix3(c.map(v => v * .55), [30, 34, 28], .4), .75); ctx.beginPath(); ctx.ellipse(p[0], p[1], 1.5 + r() * 2.5, 3 + r() * 4, 0, 0, Math.PI * 2); ctx.fill(); });
+  // forest: foliage dabs + rim light + pines + oak trunks
+  const oakTrunks = G.oaks.map(o => o);
+  spread(oakTrunks, 26.8, 27.2, (ctx, o) => { const top = P(o.c[0] + o.lean, o.c[1] + o.r * .9), bot = P(o.base[0], o.base[1]); const mid = [lerp(top[0], bot[0], .5) + (r() - .5) * 20, lerp(top[1], bot[1], .5)]; brush(ctx, [top, mid, bot], 7 + r() * 4, [36, 30, 26], .95, 2, 5); brush(ctx, [[top[0] - 3, lerp(top[1], bot[1], .4)], [mid[0] - 4, mid[1]], [bot[0] - 4, bot[1]]], 1.4, [120, 96, 70], .22, 0, 0); for (let b = 0; b < 5; b++) { const t = .15 + r() * .45; const s = [lerp(top[0], bot[0], t), lerp(top[1], bot[1], t)]; const ang = -Math.PI / 2 + (r() - .5) * 2.2; const len = 25 + r() * 45; brush(ctx, [s, [s[0] + Math.cos(ang) * len * .5, s[1] + Math.sin(ang) * len * .5 - 6], [s[0] + Math.cos(ang) * len, s[1] + Math.sin(ang) * len]], 1.5 + r() * 2.5, [38, 32, 28], .9, 0, 0); } });
+  const crown = []; G.oaks.forEach(o => { const c = P(o.c[0], o.c[1]); const rx = o.r * W * 1.2, ry = rx * .8; for (let i = 0; i < 32; i++) { const a = r() * Math.PI * 2, d = Math.sqrt(r()); const cx = c[0] + Math.cos(a) * rx * d, cy = c[1] + Math.sin(a) * ry * d * (Math.sin(a) > 0 ? 1.5 : .9); for (let j = 0; j < 20; j++) { const aa = r() * Math.PI * 2, dd = Math.sqrt(r()) * rx * (.18 + r() * .2); crown.push({ x: cx + Math.cos(aa) * dd, y: cy + Math.sin(aa) * dd * .8, top: Math.sin(aa) < -.3, cx, cy }); } } });
+  spread(crown.sort((a, b) => a.y - b.y), 27.0, 28.0, (ctx, q) => { const c = fieldAt(q.x, q.y); const base = mix3(c.map(v => v * .55), [34, 42, 30], .55); const col = base.map(v => v * (.8 + r() * .4)); dab(ctx, q.x, q.y, 3 + r() * 4.5, col, .88); if (q.top && r() < .3) dab(ctx, q.x - 1, q.y - 2, 1.4 + r() * 1.4, mix3(base, [150, 140, 80], .5), .55); });
+  const pineOps = []; G.pines.forEach(pn => { const top = P(pn[0], pn[1]), base = P(pn[0], pn[2]), hw = pn[3] * W; pineOps.push({ kind: 'trunk', top: [top[0], lerp(top[1], base[1], .35)], base }); const tiers = 22, fb = lerp(top[1], base[1], .8), step = (fb - top[1]) / tiers; for (let i = 0; i < tiers; i++) { const t = i / tiers; const y = lerp(top[1], fb, t) + (r() - .5) * step * .4; const w = hw * (.08 + .92 * Math.pow(t, .8)) * (.75 + r() * .5); pineOps.push({ kind: 'br', x: top[0], y, w, side: -1, step }); pineOps.push({ kind: 'br', x: top[0], y, w, side: 1, step }); } });
+  spread(pineOps, 27.0, 28.4, (ctx, o) => { if (o.kind === 'trunk') { brush(ctx, [o.top, o.base], 4, [34, 28, 24], .9, 0, 0); return; } const c = fieldAt(o.x + o.side * o.w * .5, o.y); const col = mix3(c.map(v => v * .55), [28, 36, 27], .55).map(v => v * (.85 + r() * .3)); const st = o.step, dr = (r() - .3) * st * .8, tx = o.x + o.side * o.w, ty = o.y + st * .8 + dr;
+    ctx.fillStyle = rgba(col, .93); ctx.beginPath(); ctx.moveTo(o.x, o.y - st * .5); ctx.quadraticCurveTo(o.x + o.side * o.w * .45, o.y + st * .05, tx, ty); ctx.lineTo(o.x + o.side * o.w * .45, o.y + st * 1.05); ctx.lineTo(o.x, o.y + st * 1.6); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = rgba(col, .8); ctx.lineWidth = 1; ctx.lineCap = 'round'; for (let j = 0; j < 4; j++) { const u = .4 + r() * .6, ex = lerp(o.x, tx, u), ey = lerp(o.y, ty, u); ctx.beginPath(); ctx.moveTo(ex, ey); ctx.lineTo(ex + o.side * (3 + r() * 6), ey + 3 + r() * 6); ctx.stroke(); }
+    if (o.side < 0 && r() < .35) brush(ctx, [[lerp(o.x, tx, .5), lerp(o.y, ty, .5) - 1], [tx + 1, ty - 1]], 1.2, mix3(col, [176, 150, 96], .5), .45, 0, 0); });
+  const leaves = sample(4200, G.trees).sort((a, b) => a[1] - b[1]);
+  spread(leaves, 27.2, 29.0, (ctx, p) => { const [x, y] = p; const c = fieldAt(x, y); const L = lum(c); if (L > .38) return; const k = r() < .75 ? .72 + r() * .2 : 1.1 + r() * .25; dab(ctx, x, y, 1.8 + r() * 3.6, c.map(v => v * k), .75); if (r() < .06) dab(ctx, x - 2, y - 2, 1.2 + r() * 1.2, mix3(c, [170, 150, 90], .4), .5); });
+  // lake: horizontal reflections + horizon glint
+  const lakePts = sample(1100, G.lake).sort((a, b) => a[1] - b[1]);
+  spread(lakePts, 28.0, 29.3, (ctx, p) => { const [x, y] = p; const c = fieldAt(x, y); const len = 16 + r() * 110; const k = r() < .5 ? .88 : 1.14; brush(ctx, [[x - len / 2, y], [x + len / 2, y + (r() - .5) * 1.5]], .9 + r() * 1.8, c.map(v => v * k), .45, 0, 0); });
+  add(29.3, ctx => { const y = P(0, .773)[1]; ctx.save(); ctx.shadowColor = 'rgba(255,240,210,.6)'; ctx.shadowBlur = 10; for (let i = 0; i < 34; i++) { const cx = P(.3 + Math.pow(r(), .8) * .3, 0)[0], len = 20 + r() * 110; brush(ctx, [[cx - len / 2, y + (r() - .5) * 6], [cx + len / 2, y + (r() - .5) * 6]], .8 + r() * 1.6, [244, 236, 218], .14 + r() * .16, 0, 0); } ctx.restore(); });
+  // meadow & foreground grass
+  const grass = sample(3600, null, (x, y) => y > lakeTopY + 4 && !inPoly(x, y, G.lake) && !(inPoly(x, y, G.trees) && y < P(0, .78)[1])).sort((a, b) => a[1] - b[1]);
+  spread(grass, 28.5, 29.8, (ctx, p) => { const [x, y] = p; const c = fieldAt(x, y); const L = lum(c); const green = c[1] > c[0] * 1.02; const k = r() < .6 ? .75 + r() * .2 : 1.15 + r() * .45; const col = green && k > 1 ? mix3(c.map(v => v * k), [170, 170, 70], .15) : c.map(v => v * k); const len = 4 + r() * (8 + (y / H) * 10); const ang = -Math.PI / 2 + (r() - .5) * .6; brush(ctx, [[x, y], [x + Math.cos(ang) * len, y + Math.sin(ang) * len]], 1 + r() * 1.8, col, .7, 0, 0); });
+  // reeds, rocks, fallen log
+  const reeds = []; for (let i = 0; i < 90; i++) { const zone = r() < .6 ? [.366, .46, .9, .94] : [.24, .35, .935, .97]; reeds.push([lerp(zone[0], zone[1], r()), lerp(zone[2], zone[3], r())]); }
+  spread(reeds, 29.3, 29.9, (ctx, q) => { const b = P(q[0], q[1]); const h = 10 + r() * 22, lean = (r() - .5) * 10; brush(ctx, [b, [b[0] + lean * .3, b[1] - h * .5], [b[0] + lean, b[1] - h]], 1.2 + r(), [32, 44, 34], .85, 0, 0); if (r() < .4) brush(ctx, [[b[0] + lean * .8, b[1] - h * .8], [b[0] + lean, b[1] - h]], 1, [150, 160, 110], .6, 0, 0); });
+  const rockList = [[.13, .95, 26], [.165, .965, 20], [.12, .985, 34], [.185, .975, 16], [.54, .97, 22], [.6, .985, 30]];
+  spread(rockList, 29.5, 29.9, (ctx, q) => { const p = P(q[0], q[1]); const c = fieldAt(p[0], p[1]); ctx.fillStyle = rgba(c, .9, .7); ctx.beginPath(); ctx.ellipse(p[0], p[1], q[2], q[2] * .55, 0, 0, Math.PI * 2); ctx.fill(); brush(ctx, [[p[0] - q[2] * .6, p[1] - q[2] * .35], [p[0] + q[2] * .2, p[1] - q[2] * .5]], 2.2, mix3(c, [200, 180, 150], .4), .55, 0, 0); });
+  add(29.9, ctx => { const a = P(.81, .872), b = P(.93, .862); brush(ctx, [a, [lerp(a[0], b[0], .5), a[1] - 6], b], 16, [40, 32, 26], .92, 3, 77); brush(ctx, [[a[0] + 10, a[1] - 7], [lerp(a[0], b[0], .5), a[1] - 12], [b[0] - 10, b[1] - 8]], 2.5, [120, 100, 72], .3, 0, 0); });
+})();
+for (let i = 0; i < 5; i++) add(20.3 + i * .04, ctx => { ctx.save(); ctx.globalAlpha = .075; ctx.drawImage(smoothField, 0, 0); ctx.restore(); });
+add(29.95, ctx => { ctx.save(); ctx.beginPath(); ctx.moveTo(-50, -50); ctx.lineTo(W + 50, -50); G.skyline.slice().reverse().forEach(p => ctx.lineTo(p[0], p[1] - 14)); ctx.closePath(); ctx.filter = 'blur(18px)'; ctx.clip(); ctx.filter = 'none'; ctx.globalAlpha = .16; ctx.drawImage(smoothField, 0, 0); ctx.restore(); });
+ops.sort((a, b) => a.t - b.t);
+
+// ---------------------------------------------------------------- base painting cache
+const base = document.createElement('canvas'); base.width = W; base.height = H;
+const bctx = base.getContext('2d');
+let opIdx = 0, baseDirty = true;
+const checkpoints = []; // {idx, canvas}
+const CHECK_TIMES = [6.5, 12, 16.6, 20.5, 26];
+function ensureBase(t) {
+  let target = 0; { let lo = 0, hi = ops.length; while (lo < hi) { const m = (lo + hi) >> 1; if (ops[m].t <= t) lo = m + 1; else hi = m; } target = lo; }
+  if (target === opIdx) return;
+  if (target < opIdx) { // rewind to best checkpoint
+    let cp = null; for (const c of checkpoints) if (c.idx <= target && (!cp || c.idx > cp.idx)) cp = c;
+    bctx.globalCompositeOperation = 'source-over'; bctx.globalAlpha = 1;
+    if (cp) { bctx.clearRect(0, 0, W, H); bctx.drawImage(cp.canvas, 0, 0); opIdx = cp.idx; } else { bctx.clearRect(0, 0, W, H); opIdx = 0; }
+  }
+  while (opIdx < target) {
+    ops[opIdx].fn(bctx); opIdx++;
+    for (const ct of CHECK_TIMES) { if (ops[opIdx - 1].t < ct && (opIdx >= ops.length || ops[opIdx].t >= ct) && !checkpoints.some(c => c.idx === opIdx)) { const c = document.createElement('canvas'); c.width = W; c.height = H; c.getContext('2d').drawImage(base, 0, 0); checkpoints.push({ idx: opIdx, canvas: c }); } }
+  }
+  baseDirty = true;
+}
+
+// ---------------------------------------------------------------- masks for motion
+function makeMask(draw) { const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d'); g.fillStyle = '#000'; g.fillRect(0, 0, W, H); draw(g); return c; }
+function fillPoly(g, poly) { g.beginPath(); poly.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.closePath(); g.fill(); }
+function channel(draw, blur) { return makeMask(g => { g.filter = blur ? `blur(${blur}px)` : 'none'; draw(g); }); }
+const skyPoly = [[0, 0], [W, 0]].concat(G.skyline.slice().reverse().map(p => p)).concat([]);
+const mSky = channel(g => { g.fillStyle = '#fff'; fillPoly(g, [[-50, -50], [W + 50, -50], [W + 50, G.skyline[G.skyline.length - 1][1]]].concat(G.skyline.slice().reverse()).concat([[-50, G.skyline[0][1]]])); g.fillStyle = '#000'; fillPoly(g, G.peakMain); fillPoly(g, G.peakFar); }, 22);
+const mWater = channel(g => { g.fillStyle = '#fff'; fillPoly(g, G.lake.map(p => [p[0], p[1] < lakeTopY + 1 ? p[1] + 5 : p[1]])); }, 5);
+const mWind = channel(g => {
+  const top = P(0, .25)[1], bot = P(0, .8)[1];
+  const lg = g.createLinearGradient(0, top, 0, bot); lg.addColorStop(0, '#fff'); lg.addColorStop(.55, '#aaa'); lg.addColorStop(1, '#111'); g.fillStyle = lg; fillPoly(g, G.trees);
+  g.fillStyle = '#555'; fillPoly(g, G.shoreTrees);
+  g.fillStyle = '#4a4a4a'; g.fillRect(P(.47, 0)[0], P(0, .835)[1], W, P(0, .92)[1] - P(0, .835)[1]);
+  g.fillStyle = '#777'; g.fillRect(P(.36, 0)[0], P(0, .885)[1], P(.47, 0)[0] - P(.36, 0)[0], P(0, .945)[1] - P(0, .885)[1]); g.fillRect(P(.24, 0)[0], P(0, .925)[1], P(.35, 0)[0] - P(.24, 0)[0], P(0, .975)[1] - P(0, .925)[1]);
+}, 6);
+const mFalls = channel(g => { g.strokeStyle = '#fff'; g.lineCap = 'round'; G.falls.forEach(f => { g.lineWidth = f.w * .9; g.lineCap = 'butt'; g.beginPath(); g.moveTo(f.a[0], f.a[1]); g.lineTo(f.b[0], f.b[1]); g.stroke(); }); }, 3);
+const mMist = channel(g => { const e = (nx, ny, rx, ry, a) => { const p = P(nx, ny); g.fillStyle = `rgba(255,255,255,${a})`; g.beginPath(); g.ellipse(p[0], p[1], rx * W, ry * IMG_H, 0, 0, Math.PI * 2); g.fill(); }; e(.5, .52, .12, .09, 1); e(.64, .47, .08, .06, .9); e(.4, .6, .08, .06, .7); e(.35, .4, .1, .07, .6); e(.45, .775, .25, .02, .9); e(.235, .74, .03, .03, .8); e(.46, .77, .02, .02, .8); e(.3, .3, .1, .08, .5); }, 40);
+const mRays = channel(g => { const s = P(.47, -.06); g.fillStyle = 'rgba(255,255,255,.85)'; fillPoly(g, [s, P(.16, .8), P(.46, .8)]); g.fillStyle = 'rgba(255,255,255,.45)'; fillPoly(g, [s, P(.5, .7), P(.6, .7)]); }, 70);
+const mSpark = channel(g => { const p = P(.43, .8); g.fillStyle = '#fff'; g.beginPath(); g.ellipse(p[0], p[1], .15 * W, .035 * IMG_H, 0, 0, Math.PI * 2); g.fill(); const q = P(.2, .83); g.fillStyle = 'rgba(255,255,255,.35)'; g.beginPath(); g.ellipse(q[0], q[1], .1 * W, .04 * IMG_H, 0, 0, Math.PI * 2); g.fill(); }, 30);
+function pack(r, gC, b, a) { const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d'); const out = g.createImageData(W, H); const d = [r, gC, b, a].map(m => m ? m.getContext('2d').getImageData(0, 0, W, H).data : null); for (let i = 0; i < W * H; i++) { out.data[i * 4] = d[0] ? d[0][i * 4] : 0; out.data[i * 4 + 1] = d[1] ? d[1][i * 4] : 0; out.data[i * 4 + 2] = d[2] ? d[2][i * 4] : 0; out.data[i * 4 + 3] = d[3] ? d[3][i * 4] : 255; } return out; }
+const M1 = pack(mSky, mWater, mWind, mFalls);
+const M2 = pack(mMist, mRays, mSpark, null);
+
+// ---------------------------------------------------------------- overlay: creatures & particles
+const over = document.createElement('canvas'); over.width = W; over.height = H;
+const octx = over.getContext('2d');
+function drawDeer(g, x, y, s, f, stag, headDown, tail, alpha) {
+  g.save(); g.translate(x, y); g.scale(f, 1); g.globalAlpha = alpha;
+  const body = '#22170f', rim = 'rgba(200,160,110,.3)';
+  g.strokeStyle = body; g.lineCap = 'round';
+  // legs
+  g.lineWidth = s * .055; [[-.3, -.02], [-.2, .03], [.22, -.03], [.3, .02]].forEach(([lx, sw]) => { g.beginPath(); g.moveTo(lx * s, -.5 * s); g.lineTo((lx + sw) * s, 0); g.stroke(); });
+  // body
+  g.fillStyle = body; g.beginPath(); g.ellipse(0, -.6 * s, .42 * s, .16 * s, -.03, 0, Math.PI * 2); g.fill();
+  // tail
+  g.beginPath(); g.ellipse(-.42 * s, -.66 * s + tail * s * .03, .05 * s, .08 * s, .6, 0, Math.PI * 2); g.fill();
+  // neck + head
+  const hx = lerp(.52, .6, headDown) * s, hy = lerp(-1.02, -.2, headDown) * s;
+  g.lineWidth = s * .13; g.beginPath(); g.moveTo(.3 * s, -.66 * s); g.quadraticCurveTo(.44 * s, lerp(-.9, -.55, headDown) * s, hx, hy); g.stroke();
+  g.save(); g.translate(hx, hy); g.rotate(lerp(.15, 1.25, headDown));
+  g.beginPath(); g.ellipse(.05 * s, .02 * s, .1 * s, .055 * s, 0, 0, Math.PI * 2); g.fill();
+  g.lineWidth = s * .03; g.beginPath(); g.moveTo(-.03 * s, -.03 * s); g.lineTo(-.1 * s, -.13 * s); g.moveTo(0, -.04 * s); g.lineTo(.02 * s, -.14 * s); g.stroke();
+  if (stag) { g.lineWidth = s * .025; g.strokeStyle = '#2b2015'; g.beginPath(); g.moveTo(-.02 * s, -.05 * s); g.lineTo(-.12 * s, -.34 * s); g.moveTo(-.07 * s, -.19 * s); g.lineTo(.02 * s, -.3 * s); g.moveTo(-.1 * s, -.28 * s); g.lineTo(-.2 * s, -.36 * s); g.moveTo(.0, -.05 * s); g.lineTo(.08 * s, -.33 * s); g.moveTo(.05 * s, -.2 * s); g.lineTo(.15 * s, -.27 * s); g.stroke(); }
+  g.restore();
+  // rim light along the back
+  g.strokeStyle = rim; g.lineWidth = s * .03; g.beginPath(); g.ellipse(0, -.6 * s, .4 * s, .15 * s, -.03, Math.PI * 1.1, Math.PI * 1.85); g.stroke();
+  g.restore();
+}
+const deerState = G.deer.map((d, i) => ({ d, rate: .08 + (i * .037) % .05, off: d[4] * 10 }));
+const birds = Array.from({ length: 5 }, (_, i) => ({ y: .06 + i * .045, speed: 26 + i * 7, phase: i * 830, size: 5 + (i % 3), dir: i % 2 ? -1 : 1, bob: i * 1.7 }));
+const motes = Array.from({ length: 60 }, (_, i) => { const r = mulberry32(900 + i); return { x: r(), y: r(), s: .6 + r() * 1.6, sp: .3 + r() * .7, ph: r() * 6.28 }; });
+function headDownAt(ds, t) { const u = (t * ds.rate + ds.off) % 1; return smooth(.15, .3, u) * (1 - smooth(.65, .8, u)); }
+function drawOverlay(t) {
+  octx.clearRect(0, 0, W, H);
+  const reveal = smooth(29.4, 31.4, t), life = smooth(30, 35, t);
+  if (reveal <= 0) return;
+  // deer + reflections
+  G.deer.forEach((d, i) => {
+    const ds = deerState[i]; const [x, y] = P(d[0], d[1]); const s = 34;
+    const hd = life > 0 ? headDownAt(ds, t) * life + (i === 1 ? 1 - life : 0) : (i === 1 ? 1 : 0);
+    const tail = Math.sin(t * 7 + i) * (Math.sin(t * .9 + i * 2) > .7 ? 1 : 0) * life;
+    const a = smooth(i / 7, i / 7 + .35, reveal);
+    if (d[0] < .6) { octx.save(); octx.translate(0, 2 * y + 2); octx.scale(1, -1); octx.globalAlpha = .25; drawDeer(octx, x + Math.sin(t * 1.3 + i) * 1.2 * life, y, s, d[2], d[3], hd, tail, a * .35); octx.restore(); }
+    drawDeer(octx, x, y, s, d[2], d[3], hd, tail, a);
+  });
+  // ducks
+  G.ducks.forEach((q, i) => {
+    const [x0, y0] = P(q[0], q[1]); const x = x0 + Math.sin(t * .11 + i * 1.7) * 9 * life, y = y0 + Math.sin(t * 1.4 + i) * .7 * life;
+    const f = Math.cos(t * .11 + i * 1.7) > 0 ? 1 : -1; const a = smooth(.3 + i * .08, .55 + i * .08, reveal);
+    octx.globalAlpha = a; octx.fillStyle = '#1b1512';
+    octx.beginPath(); octx.ellipse(x, y, 7, 2.6, 0, 0, Math.PI * 2); octx.fill();
+    octx.beginPath(); octx.arc(x + f * 6, y - 4, 2.2, 0, Math.PI * 2); octx.fill();
+    octx.strokeStyle = 'rgba(230,220,200,.35)'; octx.lineWidth = .8; octx.beginPath(); octx.moveTo(x - f * 8, y + 2); octx.lineTo(x - f * 22, y + 4); octx.moveTo(x - f * 8, y + 2.5); octx.lineTo(x - f * 20, y + 7); octx.stroke();
+    octx.strokeStyle = 'rgba(40,32,28,.25)'; octx.beginPath(); octx.ellipse(x, y + 3.5, 10, 1.4, 0, 0, Math.PI * 2); octx.stroke();
+  });
+  octx.globalAlpha = 1;
+  if (life <= 0) return;
+  // distant birds
+  birds.forEach(b => {
+    const span = W + 400; const u = ((t - 30) * b.speed + b.phase) % span; const x = b.dir > 0 ? u - 200 : W + 200 - u; const y = b.y * H + Math.sin(t * .5 + b.bob) * 14;
+    const flap = Math.sin(t * 7 + b.bob * 3); const w = b.size; const up = flap * w * .55;
+    octx.strokeStyle = `rgba(52,44,46,${.6 * life})`; octx.lineWidth = 1.4; octx.lineCap = 'round';
+    octx.beginPath(); octx.moveTo(x - w, y - up); octx.quadraticCurveTo(x - w * .4, y - up * .3 - 2, x, y); octx.quadraticCurveTo(x + w * .4, y - up * .3 - 2, x + w, y - up); octx.stroke();
+  });
+  // light motes drifting in the sunbeam
+  octx.save(); octx.globalCompositeOperation = 'lighter';
+  motes.forEach(m => { const x = P(.18 + m.x * .32, 0)[0] + Math.sin(t * .2 * m.sp + m.ph) * 40; const y = ((m.y * H * .7 + t * 9 * m.sp) % (H * .7)) + H * .1; const tw = .5 + .5 * Math.sin(t * 1.7 * m.sp + m.ph); octx.fillStyle = `rgba(255,236,190,${.28 * tw * life})`; octx.beginPath(); octx.arc(x, y, m.s, 0, Math.PI * 2); octx.fill(); });
+  octx.restore();
+}
+
+// ---------------------------------------------------------------- WebGL compositor
+const VS = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
+const FS = `precision highp float;
+uniform sampler2D uBase,uM1,uM2,uOver;uniform float uT,uAmp;uniform vec2 uRes;
+float hash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
+float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1.,0.)),f.x),mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.,1.)),f.x),f.y);}
+float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*noise(p);p=p*2.03+vec2(1.7,9.2);a*=.5;}return v;}
+void main(){
+ vec2 uv=gl_FragCoord.xy/uRes; float yd=1.-uv.y; float t=uT;
+ vec4 m1=texture2D(uM1,uv), m2=texture2D(uM2,uv);
+ vec2 p=uv*vec2(uRes.x/uRes.y,1.);
+ // clouds drift + billow (flow-map crossfade keeps it endless)
+ float sky=smoothstep(.5,.98,m1.r)*uAmp;
+ vec2 flow=vec2(.016,-.002)+(vec2(fbm(p*1.6+t*.015),fbm(p*1.6+vec2(5.2,1.3)-t*.015))-.5)*.014;
+ float ph1=fract(t/16.), ph2=fract(t/16.+.5), wm=abs(1.-2.*ph1);
+ vec2 warp=(vec2(fbm(p*2.6+vec2(t*.035,0.)),fbm(p*2.6+vec2(3.1,t*.03)))-.5)*.007;
+ // water ripples, stronger toward the viewer
+ float wat=smoothstep(.2,.85,m1.g)*uAmp;
+ float depth=clamp((yd-.789)/.13,0.,1.); float k=.18+depth;
+ float rip=noise(vec2(uv.x*16.+t*.12, yd*240./k+t*.8))-.5;
+ float rip2=sin(yd*420./k+t*1.7+noise(vec2(uv.x*5.,t*.15))*6.);
+ vec2 wo=vec2(rip*.0022*k+rip2*.0004*k, rip2*.0009*k)*wat;
+ // wind in foliage and grass
+ float fo=m1.b*uAmp;
+ float gust=.55+.45*sin(t*.37+uv.x*2.5)*sin(t*.23+1.3);
+ vec2 fw=vec2((noise(vec2(uv.x*22.+t*1.1,yd*16.))-.5)*.0032*gust+sin(t*1.4+yd*30.+uv.x*11.)*.0007*gust,(noise(vec2(uv.x*22.,yd*16.+t*1.1))-.5)*.0014)*fo;
+ vec2 o=wo+fw;
+ vec3 c1=texture2D(uBase,uv+o+(flow*(ph1-.5)+warp)*sky).rgb;
+ vec3 c2=texture2D(uBase,uv+o+(flow*(ph2-.5)+warp)*sky).rgb;
+ vec3 col=mix(c1,c2,wm);
+ // falling water
+ float wf=m1.a*uAmp;
+ float st=noise(vec2(gl_FragCoord.x/2.2,gl_FragCoord.y/26.+t*6.))*.65+noise(vec2(gl_FragCoord.x/1.2,gl_FragCoord.y/10.+t*10.))*.35;
+ col=mix(col,vec3(.95,.93,.89),wf*smoothstep(.55,.9,st)*.24); col*=1.-wf*(1.-st)*.08;
+ // drifting mist
+ float mi=m2.r*uAmp; float fog=fbm(p*vec2(2.2,4.5)+vec2(t*.025,t*.004))-.5;
+ col+=fog*mi*.34*vec3(1.,.96,.88);
+ // god rays and breathing light
+ vec2 d=uv-vec2(.47,1.1); float a=atan(d.y,d.x);
+ float r=noise(vec2(a*34.+t*.035,t*.04))*.6+noise(vec2(a*85.-t*.025,3.))*.4;
+ col+=(smoothstep(.42,.9,r)-.25)*m2.g*.12*uAmp*vec3(1.,.93,.8)*(.8+.2*sin(t*.4));
+ col*=1.+m2.g*.035*sin(t*.5)*uAmp;
+ // glints on the lake
+ float sp=pow(noise(vec2(gl_FragCoord.x/3.,gl_FragCoord.y/1.4+t*2.5))*noise(vec2(gl_FragCoord.x/10.+t*.6,gl_FragCoord.y/2.)),5.);
+ col+=sp*m2.b*2.4*uAmp*vec3(1.,.95,.85);
+ col=mix(col,col*col*(3.-2.*col),.35);
+ // creatures (premultiplied)
+ vec4 ov=texture2D(uOver,uv+wo*.6); col=col*(1.-ov.a)+ov.rgb;
+ // canvas weave + gentle vignette
+ col*=1.+.03*(noise(gl_FragCoord.xy*vec2(.7,.09))+noise(gl_FragCoord.xy*vec2(.09,.7))-1.);
+ col*=mix(1.,smoothstep(1.3,.3,length((uv-.5)*vec2(1.15,1.))),.28);
+ gl_FragColor=vec4(col,1.);
+}`;
+function createCompositor(canvas) {
+  const gl = canvas.getContext('webgl', { preserveDrawingBuffer: true, antialias: false, premultipliedAlpha: false });
+  if (!gl) return null;
+  const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
+  const prog = gl.createProgram(); gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(prog); gl.useProgram(prog);
+  const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(prog, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+  const tex = (unit, name) => { const t = gl.createTexture(); gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE); gl.uniform1i(gl.getUniformLocation(prog, name), unit); return t; };
+  const tBase = tex(0, 'uBase'), tM1 = tex(1, 'uM1'), tM2 = tex(2, 'uM2'), tOver = tex(3, 'uOver');
+  const upload = (unit, t, src, premul) => { gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t); gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, !!premul); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, src); };
+  upload(1, tM1, M1); upload(2, tM2, M2);
+  const uT = gl.getUniformLocation(prog, 'uT'), uAmp = gl.getUniformLocation(prog, 'uAmp'), uRes = gl.getUniformLocation(prog, 'uRes');
+  gl.viewport(0, 0, W, H); gl.uniform2f(uRes, W, H);
+  return {
+    draw(t, amp, baseChanged) {
+      if (baseChanged) upload(0, tBase, base, false);
+      upload(3, tOver, over, true);
+      gl.uniform1f(uT, t); gl.uniform1f(uAmp, amp);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
+  };
+}
+
+// ---------------------------------------------------------------- public API
+let comp = null, canvas2dFallback = null;
+function attach(canvas) { canvas.width = W; canvas.height = H; try { comp = createCompositor(canvas); } catch (e) { console.error(e); comp = null; } if (!comp) canvas2dFallback = canvas.getContext('2d'); }
+function render(t) {
+  ensureBase(Math.min(t, DUR));
+  drawOverlay(t);
+  const amp = smooth(30, 35, t);
+  if (comp) { comp.draw(t, amp, baseDirty); baseDirty = false; }
+  else if (canvas2dFallback) { canvas2dFallback.drawImage(base, 0, 0); canvas2dFallback.drawImage(over, 0, 0); }
+}
+window.SierraPainter = { W, H, DUR, PHASES, attach, render, stats: { ops: ops.length, nA, nB, nC } };
+})();
+
+</script>
+<script>
+(function(){
+  const SP = window.SierraPainter;
+  const view = document.getElementById('view');
+  SP.attach(view);
+  const stage = document.getElementById('stage'), scrub = document.getElementById('scrub'), timeEl = document.getElementById('time');
+  const playBtn = document.getElementById('play'), icon = document.getElementById('playIcon'), tag = document.getElementById('phaseTag');
+  const marks = document.getElementById('marks');
+  let t = 0, playing = true, speed = 1, last = performance.now(), wall = false;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // swatches from the analysed palette
+  const sw = document.getElementById('swatches');
+  for (let i = 0; i < 64; i += 2) { const s = document.createElement('span'); s.style.background = '#' + REF_PAL.substr(i * 6, 6); s.title = '#' + REF_PAL.substr(i * 6, 6); sw.appendChild(s); }
+
+  SP.PHASES.forEach(p => { const b = document.createElement('button'); b.innerHTML = '<span class="lbl">' + p.name + '</span>'; b.setAttribute('aria-label', 'Jump to ' + p.name); b.style.left = (p.t / SP.DUR * 100) + '%'; b.addEventListener('click', () => { seek(p.name === 'Alive' ? 33 : p.t + (p.t ? .01 : 0)); }); p.el = b; marks.appendChild(b); });
+
+  const fmt = s => { const m = Math.floor(s / 60), r = s - m * 60; return String(m).padStart(2, '0') + ':' + r.toFixed(1).padStart(4, '0'); };
+  function setIcon(){ icon.innerHTML = playing ? '<rect x="3" y="2" width="3.5" height="12"/><rect x="9.5" y="2" width="3.5" height="12"/>' : '<path d="M4 2l10 6-10 6z"/>'; playBtn.setAttribute('aria-label', playing ? 'Pause' : 'Play'); }
+  function ui(){
+    const shown = Math.min(t, SP.DUR);
+    scrub.value = shown; scrub.style.setProperty('--pct', (shown / SP.DUR * 100) + '%');
+    timeEl.textContent = t > SP.DUR ? 'alive · ' + fmt(t - SP.DUR) : fmt(shown) + ' / ' + fmt(SP.DUR);
+    let cur = SP.PHASES[0]; SP.PHASES.forEach(p => { if (t >= p.t) cur = p; p.el.classList.toggle('on', p === cur); });
+    tag.textContent = cur.name; tag.style.opacity = t > 33 ? 0 : 1;
+  }
+  function seek(v){ t = Math.max(0, v); SP.render(t); ui(); }
+  function frame(now){
+    const dt = Math.min(.1, (now - last) / 1000); last = now;
+    if (playing) { t += dt * speed; if (!wall && t > SP.DUR && t - dt * speed <= SP.DUR) { /* keep living past the end */ } SP.render(t); ui(); }
+    requestAnimationFrame(frame);
+  }
+  playBtn.addEventListener('click', () => { playing = !playing; setIcon(); if (playing && t >= SP.DUR + 600) t = 0; });
+  scrub.addEventListener('input', () => seek(parseFloat(scrub.value)));
+  [['sp05', .5], ['sp1', 1], ['sp2', 2]].forEach(([id, v]) => document.getElementById(id).addEventListener('click', e => { speed = v; document.querySelectorAll('.seg button').forEach(b => b.setAttribute('aria-pressed', b === e.currentTarget)); }));
+
+  const hint = document.getElementById('wallHint');
+  function enterWall(){ wall = true; stage.classList.add('wall'); if (t < 34) seek(36); playing = true; setIcon(); hint.classList.add('show'); setTimeout(() => hint.classList.remove('show'), 2500); try { const r = stage.requestFullscreen && stage.requestFullscreen(); if (r && r.catch) r.catch(() => {}); } catch (e) {} try { navigator.wakeLock && navigator.wakeLock.request('screen').catch(() => {}); } catch (e) {} }
+  function exitWall(){ wall = false; stage.classList.remove('wall'); try { if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); } catch (e) {} }
+  document.getElementById('wall').addEventListener('click', enterWall);
+  stage.addEventListener('click', () => { if (wall) exitWall(); });
+  document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && wall) exitWall(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && wall) exitWall();
+    if (e.target.tagName === 'INPUT' && e.target.type !== 'range') return;
+    if (e.code === 'Space') { e.preventDefault(); playBtn.click(); }
+    if (e.key === 'ArrowRight') seek(Math.min(t, SP.DUR) + 5);
+    if (e.key === 'ArrowLeft') seek(Math.min(t, SP.DUR) - 5);
+  });
+  if (reduce) { playing = false; seek(40); setIcon(); }
+  else { SP.render(0); ui(); }
+  requestAnimationFrame(frame);
+})();
+</script>
+
+</body></html>

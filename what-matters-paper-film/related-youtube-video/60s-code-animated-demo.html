@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>What would you do with the time AI gives back? · 60-second demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300;1,9..144,400&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#06070d; --dusk:#141527; --plum:#2b2140; --lamp:#f2a65a; --dust:#8fb3d9; --cream:#f3ead8;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --night:#06070d; } }
+:root[data-theme="dark"]{ --night:#06070d; }
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{height:100%;margin:0}
+body{background:var(--night);display:grid;place-items:center;overflow:hidden;color:var(--cream);
+  font-family:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif}
+.stage{position:relative;width:min(100vw,177.78vh);aspect-ratio:16/9;overflow:hidden;
+  background:radial-gradient(120% 95% at 50% 115%,#3d2737 0%,var(--plum) 34%,var(--dusk) 68%,#0b0c18 100%);
+  --u:10px}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.grain{position:absolute;inset:0;pointer-events:none;opacity:.07;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+.vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.55) 100%)}
+.cap{position:absolute;left:12%;right:12%;bottom:7.5%;text-align:center;
+  font-size:calc(var(--u)*2.25);line-height:1.45;text-shadow:0 1px calc(var(--u)*1.2) rgba(0,0,0,.75)}
+.cap span{opacity:0;transition:opacity .3s ease}
+.cap span.on{opacity:1}
+.cap span.key{color:var(--lamp)}
+.q{position:absolute;top:10%;left:0;right:0;text-align:center;font-family:Fraunces,Georgia,serif;font-weight:300;
+  font-size:calc(var(--u)*3.4);letter-spacing:-.01em;opacity:0;transform:translateY(calc(var(--u)*.8));
+  transition:opacity .9s ease,transform .9s ease}
+.q.on{opacity:1;transform:none}
+.q .n{display:block;font-family:"Atkinson Hyperlegible",sans-serif;font-size:calc(var(--u)*1.3);color:var(--lamp);margin-bottom:.7em;letter-spacing:.04em}
+.title{position:absolute;inset:0;display:grid;place-content:center;text-align:center;pointer-events:none;
+  font-family:Fraunces,Georgia,serif;font-style:italic;font-weight:300;font-size:calc(var(--u)*5.4);line-height:1.08;
+  letter-spacing:-.02em;padding-bottom:6%}
+.title div{opacity:0;transform:translateY(calc(var(--u)*1.2));transition:opacity 1.6s ease,transform 1.6s ease;text-shadow:0 2px calc(var(--u)*3) rgba(0,0,0,.5)}
+.title div:nth-child(2){transition-delay:.5s}
+.title.on div{opacity:1;transform:none}
+.bar{position:absolute;left:0;bottom:0;height:2px;width:0;background:var(--lamp);opacity:.7}
+.gate{position:absolute;inset:0;display:grid;place-content:center;gap:calc(var(--u)*1.4);text-align:center;
+  background:rgba(6,7,13,.55);backdrop-filter:blur(2px);transition:opacity .6s}
+.gate.hide{opacity:0;pointer-events:none}
+.gate h1{margin:0;font-family:Fraunces,Georgia,serif;font-weight:300;font-style:italic;font-size:calc(var(--u)*3.6);letter-spacing:-.01em}
+.gate p{margin:0;color:#cfc6b6;font-size:calc(var(--u)*1.35);max-width:52ch;justify-self:center;line-height:1.5}
+.gate button{justify-self:center;font:inherit;font-weight:700;font-size:calc(var(--u)*1.5);color:#1a1210;background:var(--lamp);
+  border:0;border-radius:999px;padding:.75em 1.6em;cursor:pointer}
+.gate button:focus-visible{outline:3px solid var(--cream);outline-offset:4px}
+.fs{position:absolute;right:1.5%;top:2.5%;font:inherit;font-size:calc(var(--u)*1.1);color:var(--cream);background:rgba(0,0,0,.35);
+  border:1px solid rgba(243,234,216,.25);border-radius:6px;padding:.35em .8em;cursor:pointer;opacity:.6}
+.fs:hover{opacity:1}
+.playing .fs{opacity:0}
+.playing .fs:hover{opacity:.8}
+.err{position:absolute;inset:0;display:none;place-content:center;text-align:center;padding:8%;font-size:calc(var(--u)*1.6)}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <div class="grain"></div><div class="vignette"></div>
+  <div class="q" id="q0"><span class="n">1 of 3</span>Do you get to choose?</div>
+  <div class="q" id="q1"><span class="n">2 of 3</span>Where does “what matters” come from?</div>
+  <div class="q" id="q2"><span class="n">3 of 3</span>What would you do with ten free minutes?</div>
+  <div class="title" id="title"><div>What would you do</div><div>with the time AI gives back?</div></div>
+  <div class="cap" id="cap" aria-live="off"></div>
+  <div class="bar" id="bar"></div>
+  <button class="fs" id="fs" type="button">Full screen (F)</button>
+  <div class="gate" id="gate">
+    <h1>The time AI gives back</h1>
+    <p>A 60-second demo of the cold open, animated entirely in code. Turn sound on. For a clean screen recording, go full screen first.</p>
+    <button id="play" type="button">Play the demo</button>
+  </div>
+  <div class="err" id="err">This demo needs WebGL, which this browser has turned off. Try a recent Chrome, Safari or Firefox.</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+const stage=document.getElementById('stage');
+const END=60;
+const SEGS=[
+ [0.8,5.75,"I've spent about ten years building machine learning systems. I'm an AI architect.",["machine","learning"]],
+ [7.15,10.64,"And for most of that time, I've made people the same promise: this will save you time, so you can spend it on what matters.",["what","matters."]],
+ [19.09,7.79,"Recently I realised I'd never actually stopped to ask what \u201cwhat matters\u201d means. Or who gets to decide.",["decide."]],
+ [27.68,2.89,"So that's this video. Three questions:",[]],
+ [30.97,5.53,"When time gets saved, do you get to choose what happens to it?",["choose"]],
+ [36.99,3.89,"Where does our sense of \u201cwhat matters\u201d come from?",[]],
+ [41.39,4.71,"What would you actually do with ten free minutes this week?",["ten","free","minutes"]],
+ [46.7,4.71,"At the end, I'll give you a small experiment to try.",["experiment"]]
+];
+const QT=[30.97,36.99,41.39];
+
+if(!window.THREE){document.getElementById('err').style.display='grid';return;}
+let renderer;
+try{renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});}catch(e){document.getElementById('err').style.display='grid';return;}
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+stage.prepend(renderer.domElement);
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(42,16/9,0.1,500);
+
+/* ---------- helpers ---------- */
+const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const sm=x=>{x=clamp(x);return x*x*(3-2*x)};
+const lerp=(a,b,p)=>a+(b-a)*p;
+function mulberry(s){return function(){s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const R=mulberry(11);
+const N=7200;
+const r1=new Float32Array(N),r2=new Float32Array(N),r3=new Float32Array(N),r4=new Float32Array(N),g1=new Float32Array(N),g2=new Float32Array(N),g3=new Float32Array(N);
+function gauss(){let u=R()||1e-6,v=R();return Math.sqrt(-2*Math.log(u))*Math.cos(6.2831853*v)}
+for(let i=0;i<N;i++){r1[i]=R();r2[i]=R();r3[i]=R();r4[i]=R();g1[i]=gauss();g2[i]=gauss();g3[i]=gauss();}
+const LAMP=[1.0,0.6,0.28],DUST=[0.5,0.68,0.95],CREAM=[1.0,0.92,0.8],EMBER=[1.0,0.42,0.2];
+function setc(o,c,k){o.r=c[0]*k;o.g=c[1]*k;o.b=c[2]*k}
+
+/* glow sprite texture */
+function glowTex(){const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d');
+  const g=x.createRadialGradient(64,64,0,64,64,64);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(.25,'rgba(255,255,255,.35)');g.addColorStop(1,'rgba(255,255,255,0)');
+  x.fillStyle=g;x.fillRect(0,0,128,128);return new THREE.CanvasTexture(c)}
+const GT=glowTex();
+function sprite(color,scale){const m=new THREE.SpriteMaterial({map:GT,color,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:0});
+  const s=new THREE.Sprite(m);s.scale.set(scale,scale,1);scene.add(s);return s}
+const core=sprite(0xf2a65a,6), sun=sprite(0xff9a55,70), sun2=sprite(0xffd2a0,22);
+sun.position.set(0,-2,-80);sun2.position.set(0,-2,-79);
+
+/* ---------- network ---------- */
+const NN=38,nodes=[];
+for(let k=0;k<NN;k++)nodes.push([(R()-.5)*32,(R()-.5)*15,(R()-.5)*18-3]);
+const edges=[],seen=new Set();
+for(let a=0;a<NN;a++){const ds=nodes.map((p,b)=>[Math.hypot(p[0]-nodes[a][0],p[1]-nodes[a][1],p[2]-nodes[a][2]),b]).sort((x,y)=>x[0]-y[0]);
+  for(let j=1;j<=2;j++){const b=ds[j][1],key=Math.min(a,b)+'-'+Math.max(a,b);if(!seen.has(key)){seen.add(key);edges.push([a,b])}}}
+const lg=new THREE.BufferGeometry(),lp=new Float32Array(edges.length*6);
+edges.forEach((e,j)=>{lp.set(nodes[e[0]],j*6);lp.set(nodes[e[1]],j*6+3)});
+lg.setAttribute('position',new THREE.BufferAttribute(lp,3));
+const lineMat=new THREE.LineBasicMaterial({color:0x8fb3d9,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false});
+scene.add(new THREE.LineSegments(lg,lineMat));
+
+/* ---------- formations: each writes position/colour/size for particle i at time t ---------- */
+function fNet(i,t,o){
+  const drift=Math.sin(t*.3+r1[i]*6)*.15;
+  if(i<5000){const n=i%NN,p=nodes[n],rr=.25+.55*r2[i];
+    o.x=p[0]+g1[i]*rr+drift;o.y=p[1]+g2[i]*rr;o.z=p[2]+g3[i]*rr;
+    const pulse=.65+.35*Math.sin(t*2.2+n*1.7);
+    setc(o,n%6===0?LAMP:DUST,(.35+.4*r3[i])*pulse);o.s=.7+.7*r3[i];
+  }else{const e=edges[i%edges.length],u=(r1[i]+t*(.08+.12*r2[i]))%1,a=nodes[e[0]],b=nodes[e[1]];
+    o.x=lerp(a[0],b[0],u)+g1[i]*.04;o.y=lerp(a[1],b[1],u)+g2[i]*.04;o.z=lerp(a[2],b[2],u)+g3[i]*.04;
+    const hot=i%9===0;setc(o,hot?LAMP:CREAM,hot?.9:.28);o.s=hot?1.3:.45;}
+}
+function mAng(t){return Math.PI/2-(0.25*t+22*sm((t-7.6)/10.5)+5*sm((t-18)/7))}
+function fClock(i,t,o){
+  const R0=7,br=.9+.1*Math.sin(t*1.5);
+  if(i<4000){const a=6.2831853*r1[i],rad=R0+g1[i]*.07;o.x=Math.cos(a)*rad;o.y=Math.sin(a)*rad;o.z=g2[i]*.1;setc(o,CREAM,.42*br);o.s=.55;}
+  else if(i<4600){const k=(i-4000)%12,a=Math.PI/2-k*Math.PI/6,rr=6.05+.6*r1[i];o.x=Math.cos(a)*rr+g1[i]*.03;o.y=Math.sin(a)*rr+g2[i]*.03;o.z=g3[i]*.05;setc(o,CREAM,.6);o.s=.6;}
+  else if(i<5400){const u=r1[i],a=mAng(t);o.x=Math.cos(a)*u*5.3+g1[i]*.05;o.y=Math.sin(a)*u*5.3+g2[i]*.05;o.z=.1+g3[i]*.04;setc(o,CREAM,.85);o.s=.75;}
+  else if(i<5800){const u=r1[i],a=mAng(t)/12+.9;o.x=Math.cos(a)*u*3.3+g1[i]*.07;o.y=Math.sin(a)*u*3.3+g2[i]*.07;o.z=.1+g3[i]*.05;setc(o,CREAM,.85);o.s=.9;}
+  else if(i<6500){const span=1.5*sm((t-12.5)/4.5),a=Math.PI/2+.35-r1[i]*span,rr=8.1+g1[i]*.09;
+    o.x=Math.cos(a)*rr;o.y=Math.sin(a)*rr;o.z=g2[i]*.1;setc(o,LAMP,span>.02?1:0);o.s=1.1;}
+  else{const d=Math.hypot(g1[i],g2[i],g3[i])||1,rr=14+18*r2[i];o.x=g1[i]/d*rr;o.y=g2[i]/d*rr*.6;o.z=g3[i]/d*rr-8;setc(o,DUST,.18);o.s=.4;}
+}
+function fDisp(i,t,o){
+  if(i<420){const rr=.35*Math.cbrt(r1[i]);const d=Math.hypot(g1[i],g2[i],g3[i])||1;o.x=g1[i]/d*rr;o.y=g2[i]/d*rr;o.z=g3[i]/d*rr;setc(o,LAMP,1);o.s=1.1;}
+  else{const d=Math.hypot(g1[i],g2[i],g3[i])||1,rr=6+15*r2[i]+(t-22.8)*.45;
+    o.x=g1[i]/d*rr+Math.sin(t*.2+i)*.3;o.y=g2[i]/d*rr*.7;o.z=g3[i]/d*rr;setc(o,i%11===0?LAMP:DUST,.22+.12*r3[i]);o.s=.5;}
+}
+const OC=[[-6.5,0,0],[0,0,0],[6.5,0,0]],OCOL=[LAMP,DUST,CREAM];
+function fOrbs(i,t,o){
+  if(i<5400){const k=i%3,c=OC[k],act=sm((t-QT[k]+.3)/1.4);
+    const d=Math.hypot(g1[i],g2[i],g3[i])||1;let rr=1.35+.22*g1[(i*7)%N];
+    let x=g1[i]/d*rr,y=g2[i]/d*rr,z=g3[i]/d*rr;
+    if(k===0&&r3[i]<.3){const b=Math.floor(r4[i]*3),u=r2[i];x=1.2+u*4.2;y=(b-1)*u*u*2.6;z=Math.sin(u*3)*.3;}
+    if(k===1&&r3[i]<.25){const a=r2[i]*6.283;x=Math.cos(a)*2.4;y=Math.sin(a*2)*.3;z=Math.sin(a)*2.4;}
+    if(k===2&&r3[i]<.2){const u=r2[i];x=Math.cos(u*6.283)*u*2.2;y=-1.8+u*.2;z=Math.sin(u*6.283)*u*2.2;}
+    const sp=t*.35+k*2,cs=Math.cos(sp),sn=Math.sin(sp);
+    o.x=c[0]+x*cs-z*sn;o.y=c[1]+y+Math.sin(t*.8+k)*.15;o.z=c[2]+x*sn+z*cs;
+    setc(o,OCOL[k],.18+.72*act);o.s=.5+.45*act;
+  }else{o.x=(r1[i]-.5)*60;o.y=(r2[i]-.5)*30;o.z=-10-r3[i]*30;setc(o,DUST,.14);o.s=.4;}
+}
+function fSprout(i,t,o){
+  const grow=sm((t-47.2)/3.6);
+  if(i<3000){const u=r1[i]*grow,y=-3+u*6.4,tw=.45*u;o.x=Math.sin(u*10+t*.6)*tw+g1[i]*.04;o.y=y;o.z=Math.cos(u*10+t*.6)*tw+g2[i]*.04;
+    setc(o,[lerp(LAMP[0],CREAM[0],u),lerp(LAMP[1],CREAM[1],u),lerp(LAMP[2],CREAM[2],u)],.8);o.s=.8;}
+  else if(i<4400){const lf=sm((t-49)/2),side=i%2?1:-1,v=r1[i]*6.283,sz=1.7*lf;
+    o.x=side*(1-Math.cos(v))*sz*.9;o.y=.6+(i%2?.9:0)+Math.sin(v)*sz*.45;o.z=g1[i]*.05;setc(o,LAMP,.7*lf+.05);o.s=.75;}
+  else{const a=r1[i]*6.283,rr=1.5+9*Math.sqrt(r2[i]);o.x=Math.cos(a)*rr;o.y=-3.1+g1[i]*.05;o.z=Math.sin(a)*rr;setc(o,DUST,.28*(1-rr/12));o.s=.5;}
+}
+function fHor(i,t,o){
+  if(i<700){o.x=(r1[i]-.5)*160;o.y=4+r2[i]*38;o.z=-90;setc(o,CREAM,.25+.35*r3[i]*(.6+.4*Math.sin(t*2+i)));o.s=1.4;}
+  else{const x=(r1[i]-.5)*110,dz=r2[i]*r2[i],z=6-dz*85;
+    o.x=x;o.z=z;o.y=-3+.35*Math.sin(x*.18+t*.6)*Math.cos(z*.12);
+    const far=clamp(-z/80);setc(o,[lerp(DUST[0],LAMP[0],far),lerp(DUST[1],LAMP[1],far),lerp(DUST[2],LAMP[2],far)],.4+.6*far);o.s=1.1+1.6*far;}
+}
+const KEYS=[[0,fNet],[7.15,fClock],[22.8,fDisp],[30.3,fOrbs],[46.7,fSprout],[52.4,fHor]];
+
+/* ---------- particle system ---------- */
+const geo=new THREE.BufferGeometry();
+const P=new Float32Array(N*3),C=new Float32Array(N*3),S=new Float32Array(N);
+geo.setAttribute('position',new THREE.BufferAttribute(P,3));
+geo.setAttribute('color',new THREE.BufferAttribute(C,3));
+geo.setAttribute('size',new THREE.BufferAttribute(S,1));
+const uniforms={uScale:{value:1},uFade:{value:1}};
+const mat=new THREE.ShaderMaterial({uniforms,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
+  vertexShader:`attribute float size;attribute vec3 color;varying vec3 vC;uniform float uScale;
+    void main(){vC=color;vec4 mv=modelViewMatrix*vec4(position,1.0);gl_PointSize=clamp(size*uScale*260.0/-mv.z,1.0,64.0);gl_Position=projectionMatrix*mv;}`,
+  fragmentShader:`varying vec3 vC;uniform float uFade;
+    void main(){vec2 c=gl_PointCoord-.5;float d=length(c);float a=smoothstep(.5,.0,d);a=a*a;gl_FragColor=vec4(vC*a*uFade,a*uFade);}`});
+scene.add(new THREE.Points(geo,mat));
+const oA={x:0,y:0,z:0,r:0,g:0,b:0,s:0},oB={x:0,y:0,z:0,r:0,g:0,b:0,s:0};
+function weight(t,idx){const k=KEYS[idx];const nxt=KEYS[idx+1];let w=sm((t-k[0])/2.2);if(idx===0)w=1;if(nxt)w*=1-sm((t-nxt[0]-.6)/2.2);return w}
+function updateParticles(t){
+  let k=0;for(let j=0;j<KEYS.length;j++)if(t>=KEYS[j][0])k=j;
+  const fB=KEYS[k][1],fA=k>0?KEYS[k-1][1]:null,loc=t-KEYS[k][0];
+  for(let i=0;i<N;i++){
+    const p=fA?sm((loc-r4[i]*1.5)/2.6):1;
+    fB(i,t,oB);
+    if(p<1){fA(i,t,oA);const q=p;
+      P[i*3]=lerp(oA.x,oB.x,q);P[i*3+1]=lerp(oA.y,oB.y,q);P[i*3+2]=lerp(oA.z,oB.z,q);
+      C[i*3]=lerp(oA.r,oB.r,q);C[i*3+1]=lerp(oA.g,oB.g,q);C[i*3+2]=lerp(oA.b,oB.b,q);S[i]=lerp(oA.s,oB.s,q);
+    }else{P[i*3]=oB.x;P[i*3+1]=oB.y;P[i*3+2]=oB.z;C[i*3]=oB.r;C[i*3+1]=oB.g;C[i*3+2]=oB.b;S[i]=oB.s;}
+  }
+  geo.attributes.position.needsUpdate=true;geo.attributes.color.needsUpdate=true;geo.attributes.size.needsUpdate=true;
+  lineMat.opacity=.22*weight(t,0);
+  const wd=weight(t,2),wo=weight(t,3),ws=weight(t,4),wh=weight(t,5);
+  core.material.opacity=.9*wd+.35*ws;core.position.set(0,lerp(0,-3,ws>wd?1:0),0);
+  core.scale.setScalar(5+1.2*Math.sin(t*2));
+  sun.material.opacity=.75*wh;sun2.material.opacity=.9*wh;
+}
+
+/* ---------- camera ---------- */
+const CAM=[
+ [0,[0,1.5,31],[0,0,-3]],[6.4,[4,.5,21],[0,0,-3]],[9.5,[0,0,21.5],[0,0,0]],[19,[0,0,20],[0,0,0]],[24,[0,0,20],[0,0,0]],
+ [29.2,[0,2,24],[0,0,0]],[32,[-6.5,.8,9],[-6.5,0,0]],[38,[0,.8,9],[0,0,0]],[42.4,[6.5,.8,9],[6.5,0,0]],
+ [47.6,[0,.2,13],[0,.2,0]],[52.2,[0,.6,12],[0,.4,0]],[55.6,[0,1.6,17],[0,-1,-25]],[61,[0,1.2,12],[0,-1,-25]]];
+const tmpL=new THREE.Vector3();
+function updateCamera(t){
+  let j=0;for(let k=0;k<CAM.length-1;k++)if(t>=CAM[k][0])j=k;
+  const a=CAM[j],b=CAM[j+1],p=sm((t-a[0])/(b[0]-a[0]));
+  camera.position.set(lerp(a[1][0],b[1][0],p)+Math.sin(t*.23)*.25,lerp(a[1][1],b[1][1],p)+Math.sin(t*.31)*.15,lerp(a[1][2],b[1][2],p));
+  tmpL.set(lerp(a[2][0],b[2][0],p),lerp(a[2][1],b[2][1],p),lerp(a[2][2],b[2][2],p));camera.lookAt(tmpL);
+}
+
+/* ---------- captions + overlays ---------- */
+const cap=document.getElementById('cap'),bar=document.getElementById('bar'),title=document.getElementById('title');
+const qs=[0,1,2].map(k=>document.getElementById('q'+k));
+let curSeg=-1,spans=[];
+function updateText(t){
+  let s=-1;for(let k=0;k<SEGS.length;k++){const nx=k+1<SEGS.length?SEGS[k+1][0]:52.1;if(t>=SEGS[k][0]-.1&&t<nx-.15)s=k;}
+  if(s!==curSeg){curSeg=s;cap.innerHTML='';spans=[];
+    if(s>=0){const [,,txt,keys]=SEGS[s];txt.split(' ').forEach((w,j,arr)=>{const sp=document.createElement('span');sp.textContent=w+(j<arr.length-1?' ':'');
+      if(keys.includes(w.replace(/[,]/g,'')))sp.className='key';cap.appendChild(sp);spans.push(sp)})}}
+  if(s>=0){const [c,d]=SEGS[s];const n=spans.length;spans.forEach((sp,j)=>sp.classList.toggle('on',t>=c+d*(j/n)-.05))}
+  qs.forEach((q,k)=>{const end=k<2?QT[k+1]-.4:46.4;q.classList.toggle('on',t>=QT[k]+.2&&t<end)});
+  title.classList.toggle('on',t>=52.6&&t<END-.6);
+  bar.style.width=(clamp(t/END)*100)+'%';
+}
+
+/* ---------- ambient score (Web Audio) ---------- */
+let ac=null;
+function startAudio(){
+  try{ac=new (window.AudioContext||window.webkitAudioContext)();}catch(e){return}
+  const now=ac.currentTime,master=ac.createGain();master.gain.setValueAtTime(0,now);
+  master.gain.linearRampToValueAtTime(.55,now+5);master.gain.setValueAtTime(.55,now+50);master.gain.linearRampToValueAtTime(.9,now+54);
+  master.gain.setValueAtTime(.9,now+57);master.gain.linearRampToValueAtTime(0,now+END);master.connect(ac.destination);
+  const lpf=ac.createBiquadFilter();lpf.type='lowpass';lpf.frequency.value=1400;lpf.connect(master);
+  const dl=ac.createDelay(2),fb=ac.createGain();dl.delayTime.value=.42;fb.gain.value=.38;lpf.connect(dl);dl.connect(fb);fb.connect(dl);dl.connect(master);
+  const mf=m=>440*Math.pow(2,(m-69)/12);
+  const CH=[[53,57,60,64],[52,55,60,67],[45,52,57,60,64],[43,50,55,59,62]];
+  for(let k=0;k<9;k++){const t0=now+k*7,ch=CH[k%4];
+    ch.concat([ch[0]-12]).forEach((m,j)=>{['sine','triangle'].forEach((ty,q)=>{const o=ac.createOscillator(),g=ac.createGain();
+      o.type=ty;o.frequency.value=mf(m)*(q?1.003:1);g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(q?.012:.022,t0+3);
+      g.gain.setValueAtTime(q?.012:.022,t0+7);g.gain.linearRampToValueAtTime(0,t0+10.5);o.connect(g);g.connect(lpf);o.start(t0);o.stop(t0+11)})})}
+  const pent=[69,72,74,76,79,81];let bt=now+3;const rb=mulberry(5);
+  while(bt<now+END-3){const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=mf(pent[Math.floor(rb()*6)]);
+    g.gain.setValueAtTime(0,bt);g.gain.linearRampToValueAtTime(.05,bt+.01);g.gain.exponentialRampToValueAtTime(.0001,bt+3);
+    o.connect(g);g.connect(lpf);o.start(bt);o.stop(bt+3.2);bt+=3+rb()*4}
+}
+
+/* ---------- loop ---------- */
+let playing=false,t0=0,tNow=14;
+function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();
+  uniforms.uScale.value=h/1080*renderer.getPixelRatio();stage.style.setProperty('--u',(w/100)+'px')}
+window.addEventListener('resize',resize);document.addEventListener('fullscreenchange',()=>setTimeout(resize,50));resize();
+function frame(now){
+  if(playing){tNow=(now-t0)/1000;if(tNow>=END){tNow=END;playing=false;stage.classList.remove('playing');showGate('Play again');}}
+  const t=tNow;
+  uniforms.uFade.value=playing||t>=END?Math.min(sm(t/1.5),1-sm((t-(END-1.5))/1.5)):.55;
+  updateParticles(t);updateCamera(t);if(playing)updateText(t);
+  renderer.render(scene,camera);requestAnimationFrame(frame);
+}
+const gate=document.getElementById('gate'),btn=document.getElementById('play');
+function showGate(label){btn.textContent=label;gate.querySelector('h1').textContent='What would you do with the time AI gives back?';gate.classList.remove('hide');}
+btn.addEventListener('click',()=>{if(ac){try{ac.close()}catch(e){}ac=null}
+  curSeg=-1;cap.innerHTML='';gate.classList.add('hide');startAudio();t0=performance.now();tNow=0;playing=true;stage.classList.add('playing')});
+function goFS(){(stage.requestFullscreen||stage.webkitRequestFullscreen||function(){}).call(stage)}
+document.getElementById('fs').addEventListener('click',goFS);
+window.addEventListener('keydown',e=>{if(e.key==='f'||e.key==='F')goFS()});
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
